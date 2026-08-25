@@ -203,6 +203,13 @@
             <button type="submit" id="settings-save" class="primary-button">Save Settings</button>
           </div>
           <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border);">
+            <p class="muted" style="margin-bottom: 8px;">Data & Export</p>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+              <button type="button" id="settings-export-json" class="secondary-button" style="width: 100%; font-size: 11px;">Export JSON</button>
+              <button type="button" id="settings-import-btn" class="secondary-button" style="width: 100%; font-size: 11px;">Import JSON</button>
+              <input type="file" id="settings-import-file" accept=".json" class="hidden">
+            </div>
+            <button type="button" id="settings-export-ics" class="secondary-button" style="width: 100%; margin-bottom: 16px;">Export Schedule (.ics)</button>
             <p class="muted" style="margin-bottom: 8px;">Danger Zone</p>
             <button type="button" id="settings-delete-keys" class="secondary-button" style="width: 100%; margin-bottom: 8px;">Delete API Keys</button>
             <button type="button" id="settings-delete-data" class="secondary-button" style="width: 100%; color: var(--accent); border-color: var(--accent);">Delete All Data & Reset App</button>

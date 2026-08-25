@@ -414,6 +414,43 @@ document.addEventListener('click',event=>{
   if(target.closest('#mobile-login-button')) { $('#mobile-menu-dialog').close(); $('#login-nav-button').click(); return; }
   if(target.closest('#mobile-logout-button')) { $('#mobile-menu-dialog').close(); $('#logout-button').click(); return; }
   if(target.id==='mobile-new-exam-button') { $('#mobile-menu-dialog').close(); $('#new-exam-button').click(); return; }
+  if(target.id==='settings-export-json') {
+    const backup = JSON.parse(JSON.stringify(state));
+    backup.ai.keys = { gemini: '', openai: '', claude: '' }; // scrub keys
+    const blob = new Blob([JSON.stringify(backup, null, 2)], {type: 'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = 'estudio-backup.json';
+    a.click(); URL.revokeObjectURL(url);
+    return;
+  }
+  if(target.id==='settings-import-btn') {
+    $('#settings-import-file').click();
+    return;
+  }
+  if(target.id==='settings-export-ics') {
+    const exam = currentExam();
+    const futureTasks = exam.tasks.filter(t => t.date >= iso());
+    if(futureTasks.length === 0) { toast('No upcoming tasks to export.'); return; }
+    
+    let icsContent = "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Estudio//Study Planner//EN\r\n";
+    futureTasks.forEach(task => {
+      const dtStart = task.date.replace(/-/g, '');
+      const dtEnd = iso(addDays(task.date, 1)).replace(/-/g, '');
+      icsContent += "BEGIN:VEVENT\r\n";
+      icsContent += `DTSTART;VALUE=DATE:${dtStart}\r\n`;
+      icsContent += `DTEND;VALUE=DATE:${dtEnd}\r\n`;
+      icsContent += `SUMMARY:[Study] ${task.topic} (${task.type})\r\n`;
+      icsContent += `DESCRIPTION:Duration: ${task.duration} mins\r\n`;
+      icsContent += "END:VEVENT\r\n";
+    });
+    icsContent += "END:VCALENDAR";
+    
+    const blob = new Blob([icsContent], {type: 'text/calendar'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = 'estudio-schedule.ics';
+    a.click(); URL.revokeObjectURL(url);
+    return;
+  }
   if(target.id==='settings-delete-keys') {
     appConfirm('Delete API Keys?', 'This will remove your stored API keys from this browser.').then(ok => {
       if(!ok) return;
@@ -484,6 +521,25 @@ document.addEventListener('change',event=>{const e=currentExam();if(event.target
 $('#plan-settings-form').addEventListener('submit',event=>{event.preventDefault();savePlanSettings(true);});
 $('#plan-settings-form').addEventListener('input',()=>savePlanSettings());
 $('#plan-settings-form').addEventListener('change',event=>{if(event.target.matches('[data-availability-day]')){const hours=document.querySelector(`[data-availability-hours="${event.target.dataset.availabilityDay}"]`);hours.disabled=!event.target.checked;savePlanSettings();}});
+$('#settings-import-file').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const imported = JSON.parse(ev.target.result);
+      if(!imported.activeExamId || !imported.exams) throw new Error("Invalid format");
+      const existingKeys = state.ai.keys;
+      Object.assign(state, imported);
+      if(state.ai) state.ai.keys = existingKeys; // Preserve keys across import
+      save();
+      location.reload();
+    } catch(err) {
+      alert("Invalid backup file: " + err.message);
+    }
+  };
+  reader.readAsText(file);
+});
 $('#timer-focus').addEventListener('change',updateTimerSettings);
 $('#timer-break').addEventListener('change',updateTimerSettings);
 $('#modal-form').addEventListener('submit',event=>{event.preventDefault();handleModal(event.currentTarget);});
