@@ -527,7 +527,11 @@ $('#settings-import-file').addEventListener('change', e => {
   const reader = new FileReader();
   reader.onload = ev => {
     try {
-      const imported = JSON.parse(ev.target.result);
+      const rawText = ev.target.result;
+      if (/<script|javascript:|on\w+\s*=|data:/i.test(rawText)) {
+        throw new Error("Malicious content detected in backup file. Import blocked for your security.");
+      }
+      const imported = JSON.parse(rawText);
       if(!imported.activeExamId || !imported.exams) throw new Error("Invalid format");
       const existingKeys = state.ai.keys;
       Object.assign(state, imported);
