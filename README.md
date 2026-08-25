@@ -14,7 +14,7 @@ All study data is synced securely to a Supabase backend database, allowing seaml
 - Templates for CAT, GMAT, GATE Chemical, CFA Levels I–III, and System Design
 - Exam countdown and availability-based, editable 14-day schedule generator
 - Topics with a confidence signal, manual sessions, and completion logging
-- Flashcards with active-recall prompts and simple spaced-repetition intervals
+- Flashcards with active-recall prompts and SM-2 based dynamic spaced-repetition (calculating dynamic intervals based on ease and retention)
 - Mistake book that turns each logged error into a review card
 - Review queue, seven-day rhythm view, progress signals, and four colour themes
 - Drag-and-drop to move sessions between days in the plan view
@@ -41,5 +41,4 @@ The planner deliberately favours a short daily review queue plus a small number 
 
 ## Next production milestones
 
-1. Replace the current fixed review intervals with an FSRS/SM-2 style scheduler, including per-card difficulty and retention targets.
-2. Add calendar synchronization, notifications, data export, and accessibility/keyboard-test coverage.
+1. Add calendar synchronization, notifications, data export, and accessibility/keyboard-test coverage.
