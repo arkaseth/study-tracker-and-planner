@@ -28,7 +28,7 @@ function minutesAvailableOn(exam, date) { return (Number(exam.availability?.[new
 function starterData() {
   const now = new Date();
   const tomorrow = iso(addDays(now, 1));
-  return { theme:'night', ai: { provider: 'gemini', keys: { gemini: '', openai: '', claude: '' } }, activeExamId:'cat', exams:[{id:'cat',name:'CAT 2026', template:'CAT', examDate:iso(addDays(now, 105)), weeklyHours:12,
+  return { theme:'night', ai: { provider: 'gemini', keys: { gemini: '', openai: '', claude: '' } }, activeExamId:'cat', tutorialCompleted: false, exams:[{id:'cat',name:'CAT 2026', template:'CAT', examDate:iso(addDays(now, 105)), weeklyHours:12,
     topics:templates.CAT.map((name, i) => ({id:uid(),name,confidence:[2,1,2,1,1][i],completed:0,concepts:[]})),
     tasks:[{id:uid(),date:iso(now),topic:'Arithmetic & Algebra',type:'Learn',duration:45,done:false},{id:uid(),date:iso(now),topic:'Reading comprehension',type:'Active recall',duration:30,done:false},{id:uid(),date:tomorrow,topic:'Data interpretation',type:'Practice',duration:45,done:false}],
     cards:[{id:uid(),front:'What does a negative slope tell you?',back:'As x rises, y falls. The magnitude shows the decrease in y for each one-unit increase in x.',topic:'Arithmetic & Algebra',due:iso(now),reviews:2,ease:2.5,interval:1,repetition:1},{id:uid(),front:'Before choosing an answer in RC, what must your evidence do?',back:'Point to a specific line or inference supported by the passage - not just a plausible-sounding interpretation.',topic:'Reading comprehension',due:iso(now),reviews:0,ease:2.5,interval:0,repetition:0},{id:uid(),front:'What makes a set solvable using a Venn diagram?',back:'The categories overlap and the question concerns counts in individual groups, intersections, or neither.',topic:'Logical reasoning',due:tomorrow,reviews:1,ease:2.5,interval:1,repetition:1}],
@@ -82,14 +82,32 @@ async function loadFromCloud() {
   renderAll();
 }
 supabaseClient.auth.getSession().then(({ data: { session } }) => {
-  if(session) { currentUser = session.user; if($('#auth-dialog').open) $('#auth-dialog').close(); $('#login-nav-button').classList.add('hidden'); $('#logout-button').classList.remove('hidden'); loadFromCloud(); }
-  else { currentUser = null; if(!$('#auth-dialog').open) $('#auth-dialog').showModal(); $('#login-nav-button').classList.remove('hidden'); $('#logout-button').classList.add('hidden'); }
+  if(session) { 
+    currentUser = session.user; 
+    if($('#auth-dialog').open) $('#auth-dialog').close(); 
+    $('#login-nav-button').classList.add('hidden'); 
+    $('#logout-button').classList.remove('hidden');
+    $('#mobile-login-button').classList.add('hidden'); 
+    $('#mobile-logout-button').classList.remove('hidden'); 
+    loadFromCloud();
+  }
+  else { 
+    currentUser = null; 
+    if(!$('#auth-dialog').open) $('#auth-dialog').showModal(); 
+    $('#login-nav-button').classList.remove('hidden'); 
+    $('#logout-button').classList.add('hidden');
+    $('#mobile-login-button').classList.remove('hidden'); 
+    $('#mobile-logout-button').classList.add('hidden'); 
+  }
 });
 supabaseClient.auth.onAuthStateChange((event, session) => {
   if(session) { currentUser = session.user; if($('#auth-dialog').open) $('#auth-dialog').close(); $('#login-nav-button').classList.add('hidden'); $('#logout-button').classList.remove('hidden'); loadFromCloud(); }
   else { currentUser = null; $('#login-nav-button').classList.remove('hidden'); $('#logout-button').classList.add('hidden'); }
 });
-$('#auth-skip-btn').addEventListener('click', () => { if($('#auth-dialog').open) $('#auth-dialog').close(); });
+$('#auth-skip-btn').addEventListener('click', () => { 
+  if($('#auth-dialog').open) $('#auth-dialog').close(); 
+  if(!state.tutorialCompleted) openTutorial();
+});
 $('#login-nav-button').addEventListener('click', () => { if(!$('#auth-dialog').open) $('#auth-dialog').showModal(); });
 $('#settings-nav-button').addEventListener('click', () => { 
   $('#settings-ai-provider').value = state.ai.provider;
@@ -129,7 +147,7 @@ $('#auth-form').addEventListener('submit', async e => {
   if(error){ err.textContent=error.message; err.classList.remove('hidden'); }
 });
 $('#auth-google-btn').addEventListener('click', () => {
-  supabaseClient.auth.signInWithOAuth({ provider: 'google' });
+  supabaseClient.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin } });
 });
 $('#auth-signup-btn').addEventListener('click', async () => {
   const email=$('#auth-email').value, password=$('#auth-password').value, err=$('#auth-error');
@@ -384,8 +402,18 @@ document.addEventListener('click',event=>{
   const target=event.target.closest('button,a'); if(!target)return;
   if(target.dataset.go) location.hash=target.dataset.go;
   if(target.id==='modal-close'||target.id==='modal-cancel') { $('#modal').close();return; }
-  if(target.id==='auth-close') { $('#auth-dialog').close(); return; }
   if(target.id==='settings-close') { $('#settings-dialog').close(); return; }
+  if(target.id==='auth-close') { $('#auth-dialog').close(); return; }
+  if(target.closest('.avatar')) { 
+    $('#mobile-exam-select').innerHTML = state.exams.map(e=>`<option value="${e.id}" ${e.id===state.activeExamId?'selected':''}>${escapeHTML(e.name)}</option>`).join('');
+    $('#mobile-menu-dialog').showModal(); return; 
+  }
+  if(target.id==='mobile-menu-close') { $('#mobile-menu-dialog').close(); return; }
+  if(target.closest('#mobile-theme-button')) { $('#theme-button').click(); return; }
+  if(target.closest('#mobile-settings-button')) { $('#mobile-menu-dialog').close(); $('#settings-nav-button').click(); return; }
+  if(target.closest('#mobile-login-button')) { $('#mobile-menu-dialog').close(); $('#login-nav-button').click(); return; }
+  if(target.closest('#mobile-logout-button')) { $('#mobile-menu-dialog').close(); $('#logout-button').click(); return; }
+  if(target.id==='mobile-new-exam-button') { $('#mobile-menu-dialog').close(); $('#new-exam-button').click(); return; }
   if(target.id==='settings-delete-keys') {
     appConfirm('Delete API Keys?', 'This will remove your stored API keys from this browser.').then(ok => {
       if(!ok) return;
@@ -433,7 +461,26 @@ document.addEventListener('click',event=>{
   if(target.dataset.viewConcepts){openConceptsModal(target.dataset.viewConcepts);}
   if(target.dataset.deleteConcept){const exam=currentExam(), topic=exam.topics.find(t=>t.id===target.dataset.topicId);if(!topic)return;const concept=topic.concepts.find(c=>c.id===target.dataset.deleteConcept);if(concept){if(concept.cardId)exam.cards=exam.cards.filter(c=>c.id!==concept.cardId);topic.concepts=topic.concepts.filter(c=>c.id!==concept.id);save();renderAll();openConceptsModal(topic.id);toast('Concept deleted.');}}
 });
-document.addEventListener('change',event=>{const e=currentExam();if(event.target.id==='exam-select'){state.activeExamId=event.target.value;save();renderAll();}if(event.target.matches('[data-task-id]')){const task=e.tasks.find(t=>t.id===event.target.dataset.taskId);task.done=event.target.checked;save();renderAll();toast(task.done?'Session logged - nice work.':'Session marked open.');}if(event.target.matches('[data-topic-confidence]')){e.topics.find(t=>t.id===event.target.dataset.topicConfidence).confidence=Number(event.target.value);save();renderAll();}});
+
+let tutorialStep = 1;
+function openTutorial() {
+  tutorialStep = 1; updateTutorialUI();
+  $('#tutorial-dialog').showModal();
+}
+function updateTutorialUI() {
+  document.querySelectorAll('.tutorial-step').forEach((el, i) => el.classList.toggle('hidden', i + 1 !== tutorialStep));
+  document.querySelectorAll('#tutorial-dots .dot').forEach((el, i) => el.classList.toggle('active', i + 1 === tutorialStep));
+  $('#tutorial-back').classList.toggle('hidden', tutorialStep === 1);
+  $('#tutorial-next').textContent = tutorialStep === 4 ? 'Finish' : 'Next';
+}
+$('#tutorial-skip').addEventListener('click', () => { state.tutorialCompleted = true; save(); $('#tutorial-dialog').close(); });
+$('#tutorial-next').addEventListener('click', () => { 
+  if (tutorialStep < 4) { tutorialStep++; updateTutorialUI(); } 
+  else { state.tutorialCompleted = true; save(); $('#tutorial-dialog').close(); }
+});
+$('#tutorial-back').addEventListener('click', () => { if (tutorialStep > 1) { tutorialStep--; updateTutorialUI(); } });
+
+document.addEventListener('change',event=>{const e=currentExam();if(event.target.id==='exam-select'||event.target.id==='mobile-exam-select'){state.activeExamId=event.target.value;save();renderAll();if(event.target.id==='mobile-exam-select')$('#mobile-menu-dialog').close();}if(event.target.matches('[data-task-id]')){const task=e.tasks.find(t=>t.id===event.target.dataset.taskId);task.done=event.target.checked;save();renderAll();toast(task.done?'Session logged - nice work.':'Session marked open.');}if(event.target.matches('[data-topic-confidence]')){e.topics.find(t=>t.id===event.target.dataset.topicConfidence).confidence=Number(event.target.value);save();renderAll();}});
 $('#plan-settings-form').addEventListener('submit',event=>{event.preventDefault();savePlanSettings(true);});
 $('#plan-settings-form').addEventListener('input',()=>savePlanSettings());
 $('#plan-settings-form').addEventListener('change',event=>{if(event.target.matches('[data-availability-day]')){const hours=document.querySelector(`[data-availability-hours="${event.target.dataset.availabilityDay}"]`);hours.disabled=!event.target.checked;savePlanSettings();}});
