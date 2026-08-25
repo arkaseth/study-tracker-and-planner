@@ -210,6 +210,57 @@
         </form>
       </div>
     </dialog>
+    <dialog id="mobile-menu-dialog">
+      <div class="confirm-body" style="padding: 24px; width: 300px; max-width: 100%;">
+        <button class="modal-close" type="button" id="mobile-menu-close">×</button>
+        <h2 class="modal-title" style="margin-bottom: 16px;">Menu</h2>
+        <div id="mobile-exam-switcher" class="exam-switcher" style="display:block; border:none; padding:0; margin-bottom:20px;">
+          <label for="mobile-exam-select">CURRENT FOCUS</label>
+          <select id="mobile-exam-select" aria-label="Current study plan"></select>
+          <button class="text-button" id="mobile-new-exam-button" style="margin-top: 8px;">+ New study plan</button>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          <button class="secondary-button" id="mobile-theme-button" style="text-align:left;"><span>◐</span> Change theme</button>
+          <button class="secondary-button" id="mobile-settings-button" style="text-align:left;"><span>⚙️</span> Settings</button>
+          <button class="primary-button hidden" id="mobile-login-button" style="text-align:left;"><span>👤</span> Log in to sync</button>
+          <button class="secondary-button hidden" id="mobile-logout-button" style="text-align:left; color: var(--coral); border-color: var(--coral);"><span>⎋</span> Log out</button>
+        </div>
+      </div>
+    </dialog>
+    <dialog id="tutorial-dialog">
+      <div class="confirm-body" style="padding: 32px; width: 440px; max-width: 100%; text-align: center; position: relative;">
+        <button class="modal-close" type="button" id="tutorial-skip" title="Skip Tour">×</button>
+        <div id="tutorial-step-1" class="tutorial-step">
+          <div class="empty-orb" style="margin-bottom:20px;">📚</div>
+          <h2 class="modal-title" style="margin-bottom:12px;">Welcome to Estudio</h2>
+          <p class="modal-copy">A calm, local-first study planner built entirely around active recall and spaced repetition.<br><br>Let's take a quick 4-step tour to see how to study effectively.</p>
+        </div>
+        <div id="tutorial-step-2" class="tutorial-step hidden">
+          <div class="empty-orb" style="margin-bottom:20px;">▤</div>
+          <h2 class="modal-title" style="margin-bottom:12px;">The 14-Day Plan</h2>
+          <p class="modal-copy">Tell Estudio your daily availability. It will automatically generate an adaptive 14-day schedule that prioritizes your weakest topics and prevents burnout.</p>
+        </div>
+        <div id="tutorial-step-3" class="tutorial-step hidden">
+          <div class="empty-orb" style="margin-bottom:20px;">◌</div>
+          <h2 class="modal-title" style="margin-bottom:12px;">The Review Queue</h2>
+          <p class="modal-copy">Every day, you'll get a batch of flashcards to review. Rate your recall honestly—Estudio uses a spaced repetition algorithm so hard cards come back sooner.</p>
+        </div>
+        <div id="tutorial-step-4" class="tutorial-step hidden">
+          <div class="empty-orb" style="margin-bottom:20px;">🧠</div>
+          <h2 class="modal-title" style="margin-bottom:12px;">AI & OCR Copilot</h2>
+          <p class="modal-copy">Stuck on a problem? Paste a screenshot to extract the text, or ask the Bring-Your-Own-Key AI to instantly generate missing concepts for you.</p>
+        </div>
+        <div class="modal-actions" style="margin-top: 32px; justify-content: space-between; align-items: center;">
+          <div id="tutorial-dots" style="display:flex; gap:6px; margin-left:8px;">
+            <span class="dot active"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <button id="tutorial-back" class="secondary-button hidden">Back</button>
+            <button id="tutorial-next" class="primary-button">Next</button>
+          </div>
+        </div>
+      </div>
+    </dialog>
     <div id="toast" role="status" aria-live="polite"></div>
     <script src="app.js"></script>
   </body>
