@@ -101,8 +101,22 @@ supabaseClient.auth.getSession().then(({ data: { session } }) => {
   }
 });
 supabaseClient.auth.onAuthStateChange((event, session) => {
-  if(session) { currentUser = session.user; if($('#auth-dialog').open) $('#auth-dialog').close(); $('#login-nav-button').classList.add('hidden'); $('#logout-button').classList.remove('hidden'); loadFromCloud(); }
-  else { currentUser = null; $('#login-nav-button').classList.remove('hidden'); $('#logout-button').classList.add('hidden'); }
+  if(session) { 
+    currentUser = session.user; 
+    if($('#auth-dialog').open) $('#auth-dialog').close(); 
+    $('#login-nav-button').classList.add('hidden'); 
+    $('#logout-button').classList.remove('hidden'); 
+    $('#mobile-login-button').classList.add('hidden'); 
+    $('#mobile-logout-button').classList.remove('hidden'); 
+    loadFromCloud(); 
+  }
+  else { 
+    currentUser = null; 
+    $('#login-nav-button').classList.remove('hidden'); 
+    $('#logout-button').classList.add('hidden'); 
+    $('#mobile-login-button').classList.remove('hidden'); 
+    $('#mobile-logout-button').classList.add('hidden'); 
+  }
 });
 $('#auth-skip-btn').addEventListener('click', () => { 
   if($('#auth-dialog').open) $('#auth-dialog').close(); 
