@@ -6,7 +6,7 @@ A calm, local-first study planner built around active recall, spaced repetition,
 
 Open `index.html` in a modern browser. There is no build step or dependency install.
 
-All sample data and changes are stored only in the browser's `localStorage`. Clearing site storage resets the app.
+All study data is synced securely to a Supabase backend database, allowing seamless multi-device roaming. Full local-first offline support is built-in; your data syncs automatically when you regain connection.
 
 ## What is implemented
 
@@ -20,6 +20,10 @@ All sample data and changes are stored only in the browser's `localStorage`. Cle
 - Drag-and-drop to move sessions between days in the plan view
 - Pomodoro timer with optional session linking (auto-marks task done on focus completion)
 - Missed-session flow: overdue tasks surface with reschedule / done / skip controls
+- **Supabase Cloud Sync & Auth:** Secure Email/Password and Google OAuth login with true offline-first syncing.
+- **AI Copilot (Bring-Your-Own-Key):** Flashcard generation & AI critiques to help avoid cognitive traps. Keys are stored purely locally.
+- **OCR Integration:** Upload or paste images of exam papers to extract text for flashcards or mistakes.
+- **Concept Glossary:** Each topic has a dedicated "Important concepts" area for definitions, formulas, and notes.
 
 ## Schedule generation algorithm
 
@@ -34,13 +38,6 @@ The 14-day schedule generator uses a **confidence-weighted pool** to allocate st
 ## Product choices
 
 The planner deliberately favours a short daily review queue plus a small number of focused sessions over exhaustive time-blocking. Confidence is intentionally a lightweight self-report: it gives the schedule a useful direction without asking for elaborate scoring. The mistake book captures the reason for an error, because a correct answer alone rarely fixes a recurring misconception.
-
-- **Supabase Cloud Sync & Auth:** Replaced standard `localStorage` with a live Supabase backend. Includes secure Email/Password and Google OAuth login, with seamless local offline fallback.
-- **AI Copilot (Bring-Your-Own-Key):** Secure, local-only storage of API keys (Gemini, OpenAI, Claude) to power smart study generation.
-  - **Flashcard Spark:** AI instantly generates missing, highly-testable concepts based on your topic.
-  - **Mistake Book Critique:** AI provides a 2-sentence encouraging critique to help you avoid specific cognitive traps in the future.
-- **OCR Integration:** Upload or paste images of exam papers to extract text and instantly spin up a flashcard or mistake entry.
-- **Concept Glossary:** Each topic has a dedicated "Important concepts" area for definitions, formulas, and notes.
 
 ## Next production milestones
 
