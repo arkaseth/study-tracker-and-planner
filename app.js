@@ -102,6 +102,13 @@ const weekdayNames = [
   "Friday",
   "Saturday",
 ];
+/**
+ * Creates default study availability for the week based on a given number of hours.
+ * Distributes the hours across Monday to Saturday, up to a maximum of 2 hours per day.
+ *
+ * @param {number} [hours=8] - The total number of hours to allocate for the week.
+ * @returns {Object} An object mapping day indices (0-6) to their respective availability data { hours, active }.
+ */
 function createDefaultAvailability(hours = 8) {
   const availability = {
     0: { hours: 2, active: false },
@@ -121,17 +128,36 @@ function createDefaultAvailability(hours = 8) {
   }
   return availability;
 }
+/**
+ * Calculates the total number of availability hours for a given exam across the entire week.
+ *
+ * @param {Object} exam - The exam object containing the availability schedule.
+ * @returns {number} The total hours available.
+ */
 function availabilityHours(exam) {
   return Object.values(exam.availability || {}).reduce(
     (total, day) => total + (day?.active ? Number(day.hours) : 0),
     0,
   );
 }
+/**
+ * Retrieves the available study time in minutes for a specific exam on a given date.
+ *
+ * @param {Object} exam - The exam object containing the availability schedule.
+ * @param {string} date - The date string (YYYY-MM-DD) for which to check availability.
+ * @returns {number} The number of available minutes for the given day.
+ */
 function minutesAvailableOn(exam, date) {
   const d = exam.availability?.[new Date(date + "T12:00").getDay()];
   return (d?.active ? Number(d.hours) : 0) * 60;
 }
 
+/**
+ * Generates the initial, default application state structure including a sample exam,
+ * tasks, topics, cards, and mistakes. Useful for new users or resetting the application.
+ *
+ * @returns {Object} The default application state object.
+ */
 function starterData() {
   const now = new Date();
   const tomorrow = iso(addDays(now, 1));
@@ -278,6 +304,13 @@ let timerMode = "focus",
 const $ = (s) => document.querySelector(s);
 const currentExam = () =>
   state.exams.find((x) => x.id === state.activeExamId) || state.exams[0];
+/**
+ * Persists the current application state to localStorage.
+ * If a user is logged in, it also synchronizes the state with the Supabase cloud backend
+ * with a debounce mechanism to minimize network requests.
+ *
+ * @returns {void}
+ */
 function save() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   if (currentUser) {
@@ -297,6 +330,13 @@ function save() {
     }, 1500);
   }
 }
+/**
+ * Asynchronously loads the study application state from Supabase for the currently authenticated user.
+ * Merges cloud state with local AI keys, ensuring consistency in exams, tasks, availability, and timer settings.
+ * Renders the dashboard upon completion.
+ *
+ * @returns {Promise<void>}
+ */
 async function loadFromCloud() {
   if (!currentUser) return;
   const { data, error } = await supabaseClient
@@ -486,6 +526,12 @@ $("#auth-signup-btn").addEventListener("click", async () => {
 $("#logout-button").addEventListener("click", () =>
   supabaseClient.auth.signOut(),
 );
+/**
+ * Displays a brief, temporary notification message (toast) to the user.
+ * The message will automatically fade out after a short delay.
+ *
+ * @param {string} message - The text content to display in the toast.
+ */
 function toast(message) {
   const el = $("#toast");
   el.textContent = message;
@@ -493,6 +539,13 @@ function toast(message) {
   clearTimeout(window.toastTimer);
   window.toastTimer = setTimeout(() => el.classList.remove("show"), 2600);
 }
+/**
+ * Shows a custom confirmation dialog modal and waits for the user's response.
+ *
+ * @param {string} title - The title of the confirmation dialog.
+ * @param {string} message - The main descriptive text for the dialog.
+ * @returns {Promise<boolean>} A promise that resolves to true if the user confirms, and false if cancelled.
+ */
 function appConfirm(title, message) {
   return new Promise((resolve) => {
     $("#confirm-title").textContent = title;
@@ -518,18 +571,44 @@ function appConfirm(title, message) {
     cancel.addEventListener("click", onCancel);
   });
 }
+/**
+ * Applies the currently selected theme from the application state
+ * to the root HTML body element.
+ *
+ * @returns {void}
+ */
 function setTheme() {
   document.body.dataset.theme = state.theme;
 }
+/**
+ * Retrieves a list of flashcards from a given exam that are due for review today or earlier.
+ * Sorts them chronologically by due date and by their streak.
+ *
+ * @param {Object} [exam=currentExam()] - The exam object to retrieve cards from. Defaults to the active exam.
+ * @returns {Array<Object>} The array of due flashcard objects.
+ */
 function getDueCards(exam = currentExam()) {
   const today = iso();
   return exam.cards
     .filter((card) => card.due <= today)
     .sort((a, b) => a.due.localeCompare(b.due) || a.streak - b.streak);
 }
+/**
+ * Calculates the total number of fully completed study tasks/sessions for a specific exam.
+ *
+ * @param {Object} exam - The exam object containing the task list.
+ * @returns {number} The number of completed tasks.
+ */
 function sessionsCompleted(exam) {
   return exam.tasks.filter((t) => t.done).length;
 }
+/**
+ * Calculates the total completed study duration in hours for a specific exam on a particular date.
+ *
+ * @param {Object} exam - The exam object containing the task list.
+ * @param {string} date - The date string (YYYY-MM-DD) to calculate hours for.
+ * @returns {number} The total hours spent on completed tasks for the given date.
+ */
 function taskHours(exam, date) {
   return (
     exam.tasks
@@ -537,9 +616,20 @@ function taskHours(exam, date) {
       .reduce((n, t) => n + t.duration, 0) / 60
   );
 }
+/**
+ * Retrieves the currently active timer duration setting based on the current mode (focus or break).
+ *
+ * @returns {number} The duration in minutes for the active timer mode.
+ */
 function timerMinutes() {
   return timerMode === "focus" ? state.timer.focus : state.timer.break;
 }
+/**
+ * Updates the timer DOM elements with the current remaining time, progress bar,
+ * mode (focus/break), and linked task information.
+ *
+ * @returns {void}
+ */
 function renderTimer() {
   const display = $("#timer-display");
   if (!display) return;
@@ -571,11 +661,22 @@ function renderTimer() {
     linkSelect.value = prev;
   }
 }
+/**
+ * Pauses the active study timer by clearing its interval and updates the UI to reflect the paused state.
+ *
+ * @returns {void}
+ */
 function pauseTimer() {
   clearInterval(timerInterval);
   timerInterval = null;
   renderTimer();
 }
+/**
+ * Toggles the study timer. If it's running, pauses it. If it's stopped, starts counting down,
+ * handling transitions between focus and break modes automatically, along with marking linked tasks as complete.
+ *
+ * @returns {void}
+ */
 function startTimer() {
   if (timerInterval) {
     pauseTimer();
@@ -612,12 +713,23 @@ function startTimer() {
   }, 1000);
   renderTimer();
 }
+/**
+ * Halts and resets the study timer back to its initial focus mode duration.
+ *
+ * @returns {void}
+ */
 function resetTimer() {
   pauseTimer();
   timerMode = "focus";
   timerRemaining = state.timer.focus * 60;
   renderTimer();
 }
+/**
+ * Validates and applies changes made to the timer settings (focus length and break length)
+ * from the user interface. Saves the state and restarts the timer if necessary.
+ *
+ * @returns {void}
+ */
 function updateTimerSettings() {
   const focus = Number($("#timer-focus").value),
     rest = Number($("#timer-break").value);
@@ -628,6 +740,12 @@ function updateTimerSettings() {
   renderTimer();
 }
 
+/**
+ * Renders the top header section, displaying the current date, exam selection dropdown,
+ * and the count of currently due flashcards.
+ *
+ * @returns {void}
+ */
 function renderHeader() {
   $("#header-date").textContent = new Intl.DateTimeFormat("en", {
     weekday: "long",
@@ -643,10 +761,22 @@ function renderHeader() {
     .join("");
   $("#review-badge").textContent = getDueCards().length;
 }
+/**
+ * Retrieves a list of tasks that were scheduled for a date prior to today but are not yet marked as completed.
+ *
+ * @param {Object} exam - The exam object to check for overdue tasks.
+ * @returns {Array<Object>} An array of overdue task objects.
+ */
 function getOverdueTasks(exam) {
   const today = iso();
   return exam.tasks.filter((t) => t.date < today && !t.done);
 }
+/**
+ * Generates the HTML string to render a list of overdue tasks in the dashboard.
+ *
+ * @param {Array<Object>} overdue - The array of overdue task objects to render.
+ * @returns {string} The generated HTML string.
+ */
 function renderOverdueHTML(overdue) {
   return overdue
     .map(
@@ -655,6 +785,12 @@ function renderOverdueHTML(overdue) {
     )
     .join("");
 }
+/**
+ * Re-renders the entire main dashboard view, including summary statistics, today's schedule,
+ * overdue tasks banner, heatmap, and flashcard due previews.
+ *
+ * @returns {void}
+ */
 function renderDashboard() {
   const exam = currentExam(),
     today = iso(),
@@ -723,6 +859,13 @@ function renderDashboard() {
     : '<p class="muted">No reviews due today.</p>';
   renderTimer();
 }
+/**
+ * Generates and updates the availability editor UI in the plan view, allowing users
+ * to adjust their daily study hours. Also updates the total weekly hours display.
+ *
+ * @param {Object} exam - The exam object to render the availability editor for.
+ * @returns {void}
+ */
 function renderAvailabilityEditor(exam) {
   $("#availability-editor").innerHTML = weekdayNames
     .map((name, day) => {
@@ -737,6 +880,12 @@ function renderAvailabilityEditor(exam) {
   $("#availability-total").textContent =
     `${total}h per week · ${days ? `${Math.round((total / days) * 10) / 10}h average per selected study day` : "select at least one study day"}`;
 }
+/**
+ * Renders the main Planning view, including the exam date, availability capacity,
+ * topic breakdown with confidence sliders, and a full day-by-day schedule.
+ *
+ * @returns {void}
+ */
 function renderPlan() {
   const exam = currentExam();
   $("#exam-date").value = exam.examDate;
@@ -765,6 +914,13 @@ function renderPlan() {
     })
     .join("");
 }
+/**
+ * Calculates the spaced repetition intervals (again, hard, good, easy) for a given flashcard
+ * based on its current ease factor, repetition count, and previous interval.
+ *
+ * @param {Object} c - The flashcard object containing current SM-2 state.
+ * @returns {Object} An object containing the calculated intervals in days.
+ */
 function calcIntervals(c) {
   const ease = c.ease || 2.5,
     rep = c.repetition || 0,
@@ -776,6 +932,12 @@ function calcIntervals(c) {
     easy: rep === 0 ? 4 : rep === 1 ? 6 : Math.round(int * ease * 1.3),
   };
 }
+/**
+ * Renders the review view, displaying the active flashcard if there are due cards,
+ * or an empty state message if the review queue is clear. Updates interval buttons.
+ *
+ * @returns {void}
+ */
 function renderReview() {
   const exam = currentExam(),
     due = getDueCards();
@@ -810,6 +972,12 @@ function renderReview() {
         .join("")
     : '<p class="muted">Your flashcards will appear here.</p>';
 }
+/**
+ * Renders the mistakes view, listing previously recorded errors across different topics,
+ * and allows for filtering or viewing details of specific mistakes.
+ *
+ * @returns {void}
+ */
 function renderMistakes() {
   const mistakes = currentExam().mistakes;
   $("#mistake-list").innerHTML = mistakes.length
@@ -821,6 +989,11 @@ function renderMistakes() {
         .join("")
     : '<div class="empty-state"><div class="empty-orb">✓</div><h2>No mistakes logged.</h2><p>When one happens, capture the lesson while it is fresh.</p></div>';
 }
+/**
+ * Placeholder or main function to render performance insights and statistics.
+ *
+ * @returns {void}
+ */
 function renderInsights() {
   const e = currentExam(),
     due = getDueCards(e),
@@ -829,6 +1002,12 @@ function renderInsights() {
   $("#insights-content").innerHTML =
     `<article class="panel insight"><span class="eyebrow">FOCUS NEXT</span><h2>${weak.length ? escapeHTML(weak[0].name) : "Keep it up"}</h2><p>${weak.length ? "Lowest confidence topic - pair one practice block with a short recall review." : "All listed topics are becoming comfortable."}</p></article><article class="panel insight"><span class="eyebrow">REVIEW LOAD</span><h2>${due.length} due</h2><p>${due.length ? "Clear these before adding more new material today." : "A sustainable queue gives you space for new learning."}</p></article><article class="panel insight"><span class="eyebrow">RETRIEVAL REPS</span><h2>${totalReview}</h2><p>Every honest rating helps the schedule learn what needs another look.</p></article>`;
 }
+/**
+ * Utility function to sequentially re-render all major views in the application:
+ * Header, Dashboard, Plan, Review, Mistakes, and Insights.
+ *
+ * @returns {void}
+ */
 function renderAll() {
   setTheme();
   renderHeader();
@@ -839,6 +1018,13 @@ function renderAll() {
   renderInsights();
 }
 
+/**
+ * Reads user inputs from the plan settings interface, updates the active exam's
+ * availability and target date, and recalculates total weekly hours. Saves state.
+ *
+ * @param {boolean} [showToast=false] - Whether to show a success toast message upon saving.
+ * @returns {void}
+ */
 function savePlanSettings(showToast = false) {
   const exam = currentExam(),
     availability = {};
@@ -877,6 +1063,12 @@ function savePlanSettings(showToast = false) {
   if (showToast) toast("Plan settings saved.");
   return true;
 }
+/**
+ * Applies a bulk availability preset (e.g., "Full-time", "Evenings & Weekends")
+ * to the active exam and updates the UI accordingly.
+ *
+ * @returns {void}
+ */
 function applyBulkAvailability() {
   const hours = Number($("#bulk-availability-hours").value);
   if (hours < 0.5 || hours > 8) {
@@ -901,6 +1093,13 @@ function applyBulkAvailability() {
     `Applied ${hours}h to ${selected.length} selected day${selected.length === 1 ? "" : "s"}.`,
   );
 }
+/**
+ * Asynchronously generates a dynamic study schedule based on available hours,
+ * exam target date, and current topic confidences.
+ * Uses AI if configured, otherwise falls back to a deterministic local algorithm.
+ *
+ * @returns {Promise<void>}
+ */
 async function generateSchedule() {
   if (!savePlanSettings()) {
     toast("Choose at least one study day and its available hours first.");
@@ -978,6 +1177,14 @@ async function generateSchedule() {
   renderAll();
   toast("A flexible 14-day schedule is ready to edit.");
 }
+/**
+ * Opens a modal dialog for creating, editing, or rescheduling a task/session.
+ *
+ * @param {string} type - The action type: "add", "edit", or "reschedule".
+ * @param {string} [presetDate=iso()] - The pre-filled date for the task in YYYY-MM-DD format.
+ * @param {Object|null} [existingTask=null] - The existing task object if editing or rescheduling.
+ * @returns {void}
+ */
 function openModal(type, presetDate = iso(), existingTask = null) {
   const modal = $("#modal"),
     content = $("#modal-content"),
@@ -1008,6 +1215,12 @@ function openModal(type, presetDate = iso(), existingTask = null) {
   modal.dataset.taskId = existingTask?.id || "";
   modal.showModal();
 }
+/**
+ * Opens a modal to manage (view, add, generate, delete) granular concepts for a specific topic.
+ *
+ * @param {string} topicId - The unique identifier of the topic.
+ * @returns {void}
+ */
 function openConceptsModal(topicId) {
   const exam = currentExam(),
     topic = exam.topics.find((t) => t.id === topicId);
@@ -1052,6 +1265,12 @@ function openConceptsModal(topicId) {
   modal.showModal();
 }
 let ocrPasteHandler = null;
+/**
+ * Opens the OCR modal for extracting text and optionally generating flashcards
+ * from an uploaded image (e.g., a photo of study notes or a textbook).
+ *
+ * @returns {void}
+ */
 function openOCRModal() {
   const dialog = $("#ocr-dialog"),
     dropzone = $("#ocr-dropzone"),
@@ -1064,6 +1283,12 @@ function openOCRModal() {
     resultContainer = $("#ocr-result-container"),
     textResult = $("#ocr-text-result"),
     initialActions = $("#ocr-initial-actions");
+  /**
+   * Resets the OCR modal state, clearing any uploaded image and extracted text,
+   * returning it to its initial ready state.
+   *
+   * @returns {void}
+   */
   function reset() {
     preview.classList.add("hidden");
     preview.src = "";
@@ -1078,6 +1303,13 @@ function openOCRModal() {
   }
   reset();
   dialog.showModal();
+  /**
+   * Processes an uploaded image file, converts it to base64, and sends it to the AI provider
+   * to extract text (OCR) and auto-generate flashcards.
+   *
+   * @param {File} file - The image file chosen by the user.
+   * @returns {void}
+   */
   function handleImage(file) {
     if (!file || !file.type.startsWith("image/")) return;
     const url = URL.createObjectURL(file);
@@ -1133,6 +1365,14 @@ function openOCRModal() {
   };
   document.addEventListener("paste", ocrPasteHandler);
 }
+/**
+ * A standardized helper function to interact with the configured AI provider
+ * (Gemini, OpenAI, or Claude). Sends a prompt and returns the text response.
+ *
+ * @param {string} systemPrompt - The system instruction or context for the AI.
+ * @param {string|Array} userPrompt - The user's prompt (can be a string or an array for multimodal like images).
+ * @returns {Promise<string>} The extracted text response from the AI.
+ */
 async function askAI(systemPrompt, userPrompt) {
   const p = state.ai.provider,
     key = state.ai.keys[p];
@@ -1198,6 +1438,13 @@ async function askAI(systemPrompt, userPrompt) {
   return text;
 }
 
+/**
+ * Handles the submission event of the general task/session modal.
+ * Validates inputs, creates or updates the task, and refreshes the plan view.
+ *
+ * @param {HTMLFormElement} form - The form element being submitted.
+ * @returns {void}
+ */
 function handleModal(form) {
   const modal = $("#modal"),
     type = modal.dataset.type,
@@ -1651,11 +1898,23 @@ document.addEventListener("click", (event) => {
 });
 
 let tutorialStep = 1;
+/**
+ * Initializes and displays the onboarding tutorial modal for new users,
+ * resetting the current step to the beginning.
+ *
+ * @returns {void}
+ */
 function openTutorial() {
   tutorialStep = 1;
   updateTutorialUI();
   $("#tutorial-dialog").showModal();
 }
+/**
+ * Updates the user interface of the tutorial modal based on the current step.
+ * Manages visibility of content, illustrations, and navigation buttons.
+ *
+ * @returns {void}
+ */
 function updateTutorialUI() {
   document
     .querySelectorAll(".tutorial-step")
@@ -1761,6 +2020,13 @@ $("#modal-form").addEventListener("submit", (event) => {
   event.preventDefault();
   handleModal(event.currentTarget);
 });
+/**
+ * Handles internal routing between major sections of the application
+ * (e.g., dashboard, plan, review, mistakes, insights) by toggling
+ * the visibility of DOM elements and updating the active navigation state.
+ *
+ * @returns {void}
+ */
 function navigate() {
   const view = location.hash.slice(1) || "dashboard";
   document
