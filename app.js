@@ -444,9 +444,22 @@ document.addEventListener('click',event=>{
   if(target.id==='settings-export-ics') {
     const exam = currentExam();
     const futureTasks = exam.tasks.filter(t => t.date >= iso());
-    if(futureTasks.length === 0) { toast('No upcoming tasks to export.'); return; }
+    if(futureTasks.length === 0 && !exam.examDate) { toast('Nothing to export.'); return; }
     
     let icsContent = "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Estudio//Study Planner//EN\r\n";
+    
+    // Export the actual exam day
+    if(exam.examDate) {
+      const exStart = exam.examDate.replace(/-/g, '');
+      const exEnd = iso(addDays(exam.examDate, 1)).replace(/-/g, '');
+      icsContent += "BEGIN:VEVENT\r\n";
+      icsContent += `DTSTART;VALUE=DATE:${exStart}\r\n`;
+      icsContent += `DTEND;VALUE=DATE:${exEnd}\r\n`;
+      icsContent += `SUMMARY:🎯 ${exam.name} - EXAM DAY\r\n`;
+      icsContent += `DESCRIPTION:Good luck on your exam!\r\n`;
+      icsContent += "END:VEVENT\r\n";
+    }
+
     futureTasks.forEach(task => {
       const dtStart = task.date.replace(/-/g, '');
       const dtEnd = iso(addDays(task.date, 1)).replace(/-/g, '');
