@@ -21,9 +21,9 @@ const formatDate = date => new Intl.DateTimeFormat('en', {weekday:'short', month
 const uid = () => Math.random().toString(36).slice(2, 10);
 const escapeHTML = text => String(text).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
 const weekdayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-function createDefaultAvailability(hours=8) { const availability={0:0,1:0,2:0,3:0,4:0,5:0,6:0}; let remaining=Number(hours)||8; for(const day of [1,2,3,4,5,6]){const allotted=Math.min(2,remaining);availability[day]=allotted;remaining-=allotted;if(remaining<=0)break;}return availability; }
-function availabilityHours(exam) { return Object.values(exam.availability||{}).reduce((total,hours)=>total+(Number(hours)||0),0); }
-function minutesAvailableOn(exam, date) { return (Number(exam.availability?.[new Date(date+'T12:00').getDay()])||0)*60; }
+function createDefaultAvailability(hours=8) { const availability={0:{hours:2,active:false},1:{hours:2,active:false},2:{hours:2,active:false},3:{hours:2,active:false},4:{hours:2,active:false},5:{hours:2,active:false},6:{hours:2,active:false}}; let remaining=Number(hours)||8; for(const day of [1,2,3,4,5,6]){const allotted=Math.min(2,remaining);availability[day]={hours:allotted||2,active:allotted>0};remaining-=allotted;if(remaining<=0)break;}return availability; }
+function availabilityHours(exam) { return Object.values(exam.availability||{}).reduce((total,day)=>total+(day?.active?Number(day.hours):0),0); }
+function minutesAvailableOn(exam, date) { const d=exam.availability?.[new Date(date+'T12:00').getDay()]; return (d?.active?Number(d.hours):0)*60; }
 
 function starterData() {
   const now = new Date();
@@ -221,8 +221,8 @@ function renderDashboard() { const exam=currentExam(), today=iso(), due=getDueCa
   renderTimer();
 }
 function renderAvailabilityEditor(exam) {
-  $('#availability-editor').innerHTML=weekdayNames.map((name,day)=>{const hours=Number(exam.availability?.[day])||0;return `<label class="availability-row"><input data-availability-day="${day}" type="checkbox" ${hours?'checked':''}><span>${name}</span><input data-availability-hours="${day}" type="number" min="0.5" max="8" step="0.5" value="${hours||2}" ${hours?'':'disabled'} aria-label="Hours available on ${name}"></label>`;}).join('');
-  const days=Object.values(exam.availability||{}).filter(hours=>Number(hours)>0).length,total=availabilityHours(exam); $('#availability-total').textContent=`${total}h per week · ${days?`${Math.round(total/days*10)/10}h average per selected study day`:'select at least one study day'}`;
+  $('#availability-editor').innerHTML=weekdayNames.map((name,day)=>{const d=exam.availability?.[day]||{hours:2,active:false};return `<label class="availability-row"><input data-availability-day="${day}" type="checkbox" ${d.active?'checked':''}><span>${name}</span><input data-availability-hours="${day}" type="number" min="0.5" max="8" step="0.5" value="${d.hours||2}" ${d.active?'':'disabled'} aria-label="Hours available on ${name}"></label>`;}).join('');
+  const days=Object.values(exam.availability||{}).filter(d=>d?.active).length,total=availabilityHours(exam); $('#availability-total').textContent=`${total}h per week · ${days?`${Math.round(total/days*10)/10}h average per selected study day`:'select at least one study day'}`;
 }
 function renderPlan() { const exam=currentExam(); $('#exam-date').value=exam.examDate; $('#plan-capacity').textContent=`${availabilityHours(exam)}h available / week`;
   renderAvailabilityEditor(exam);
@@ -253,11 +253,11 @@ function renderAll(){setTheme();renderHeader();renderDashboard();renderPlan();re
 
 function savePlanSettings(showToast=false) {
   const exam=currentExam(), availability={};
-  document.querySelectorAll('[data-availability-day]').forEach(toggle=>{const day=toggle.dataset.availabilityDay,hours=document.querySelector(`[data-availability-hours="${day}"]`);availability[day]=toggle.checked?Number(hours.value):0;});
-  const weeklyHours=Object.values(availability).reduce((total,hours)=>total+(Number(hours)||0),0);
-  if (!$('#exam-date').value || weeklyHours<=0 || Object.values(availability).some(hours=>hours&& (hours<0.5||hours>8))) return false;
+  document.querySelectorAll('[data-availability-day]').forEach(toggle=>{const day=toggle.dataset.availabilityDay,hours=document.querySelector(`[data-availability-hours="${day}"]`);availability[day]={hours:Number(hours.value)||2,active:toggle.checked};});
+  const weeklyHours=Object.values(availability).reduce((total,d)=>total+(d.active?Number(d.hours):0),0);
+  if (!$('#exam-date').value || weeklyHours<=0 || Object.values(availability).some(d=>d.active&& (d.hours<0.5||d.hours>8))) return false;
   exam.examDate=$('#exam-date').value; exam.availability=availability; exam.weeklyHours=weeklyHours;
-  const selectedDays=Object.values(availability).filter(hours=>Number(hours)>0).length,average=Math.round(weeklyHours/selectedDays*10)/10;
+  const selectedDays=Object.values(availability).filter(d=>d.active).length,average=Math.round(weeklyHours/selectedDays*10)/10;
   save(); $('#plan-capacity').textContent=`${weeklyHours}h available / week`; $('#availability-total').textContent=`${weeklyHours}h per week · ${average}h average per selected study day`;
   $('#settings-status').textContent='Saved automatically.'; if(showToast) toast('Plan settings saved.'); return true;
 }
