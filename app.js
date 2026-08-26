@@ -265,7 +265,7 @@ function applyBulkAvailability() {
   const hours=Number($('#bulk-availability-hours').value); if(hours<0.5||hours>8){toast('Choose between 0.5 and 8 hours.');return;}
   const selected=[...document.querySelectorAll('[data-availability-day]:checked')]; if(!selected.length){toast('Select at least one study day first.');return;}
   selected.forEach(toggle=>{const input=document.querySelector(`[data-availability-hours="${toggle.dataset.availabilityDay}"]`);input.value=hours;});
-  savePlanSettings();renderPlan();toast(`Applied ${hours}h to ${selected.length} selected day${selected.length===1?'':'s'}.`);
+  savePlanSettings();toast(`Applied ${hours}h to ${selected.length} selected day${selected.length===1?'':'s'}.`);
 }
 async function generateSchedule() {
   if (!savePlanSettings()) { toast('Choose at least one study day and its available hours first.'); return; }
