@@ -1,11 +1,70 @@
-.availability-block { display: grid; gap: 7px; font-size: 13px; font-weight: 600; }
-.availability-block small { font-weight: 400; font-size: 11px; color: var(--muted); line-height: 1.35; }
-.availability-editor { display: grid; gap: 7px; margin-top: 5px; }
-.availability-row { display: grid; grid-template-columns: 20px 1fr 76px; gap: 8px; align-items: center; font-size: 12px; }
-.availability-row input[type="checkbox"] { accent-color: var(--accent); width: 15px; height: 15px; }
-.availability-row input[type="number"] { border: 1px solid var(--line); background: var(--canvas); color: var(--ink); border-radius: 5px; padding: 6px 7px; width: 100%; }
-.availability-row input:disabled { opacity: .4; }
-.availability-bulk { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 5px; padding: 9px; background: var(--panel2); border-radius: 6px; }
-.availability-bulk label { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--muted); }
-.availability-bulk input { width: 48px; border: 1px solid var(--line); background: var(--canvas); color: var(--ink); border-radius: 4px; padding: 5px; }
-.availability-bulk .secondary-button { min-height: 30px; padding: 0 9px; font-size: 11px; }
+.availability-block {
+  display: grid;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.availability-block small {
+  font-weight: 400;
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.35;
+}
+.availability-editor {
+  display: grid;
+  gap: 7px;
+  margin-top: 5px;
+}
+.availability-row {
+  display: grid;
+  grid-template-columns: 20px 1fr 76px;
+  gap: 8px;
+  align-items: center;
+  font-size: 12px;
+}
+.availability-row input[type="checkbox"] {
+  accent-color: var(--accent);
+  width: 15px;
+  height: 15px;
+}
+.availability-row input[type="number"] {
+  border: 1px solid var(--line);
+  background: var(--canvas);
+  color: var(--ink);
+  border-radius: 5px;
+  padding: 6px 7px;
+  width: 100%;
+}
+.availability-row input:disabled {
+  opacity: 0.4;
+}
+.availability-bulk {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 5px;
+  padding: 9px;
+  background: var(--panel2);
+  border-radius: 6px;
+}
+.availability-bulk label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: var(--muted);
+}
+.availability-bulk input {
+  width: 48px;
+  border: 1px solid var(--line);
+  background: var(--canvas);
+  color: var(--ink);
+  border-radius: 4px;
+  padding: 5px;
+}
+.availability-bulk .secondary-button {
+  min-height: 30px;
+  padding: 0 9px;
+  font-size: 11px;
+}

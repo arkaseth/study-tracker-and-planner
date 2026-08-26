@@ -3,12 +3,21 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="A calm, local-first study tracker built around active recall and spaced repetition." />
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📚</text></svg>">
+    <meta
+      name="description"
+      content="A calm, local-first study tracker built around active recall and spaced repetition."
+    />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📚</text></svg>"
+    />
     <title>Estudio - Study planner</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="styles.css" />
     <link rel="stylesheet" href="styles-extra.css" />
     <link rel="stylesheet" href="timer.css" />
@@ -19,24 +28,46 @@
   <body data-theme="night">
     <div class="app-shell">
       <aside class="sidebar">
-        <a class="brand" href="#dashboard" aria-label="Estudio home"><span class="brand-mark">e</span><span>estudio</span></a>
+        <a class="brand" href="#dashboard" aria-label="Estudio home"
+          ><span class="brand-mark">e</span><span>estudio</span></a
+        >
         <div class="exam-switcher">
           <label for="exam-select">CURRENT FOCUS</label>
           <select id="exam-select" aria-label="Current study plan"></select>
-          <button class="text-button" id="new-exam-button">+ New study plan</button>
+          <button class="text-button" id="new-exam-button">
+            + New study plan
+          </button>
         </div>
         <nav aria-label="Main navigation">
-          <a class="nav-item active" href="#dashboard" data-view="dashboard"><span>◫</span>Today</a>
-          <a class="nav-item" href="#plan" data-view="plan"><span>▤</span>Plan</a>
-          <a class="nav-item" href="#review" data-view="review"><span>◌</span>Review queue <b id="review-badge">0</b></a>
-          <a class="nav-item" href="#mistakes" data-view="mistakes"><span>↗</span>Mistake book</a>
-          <a class="nav-item" href="#insights" data-view="insights"><span>◔</span>Insights</a>
+          <a class="nav-item active" href="#dashboard" data-view="dashboard"
+            ><span>◫</span>Today</a
+          >
+          <a class="nav-item" href="#plan" data-view="plan"
+            ><span>▤</span>Plan</a
+          >
+          <a class="nav-item" href="#review" data-view="review"
+            ><span>◌</span>Review queue <b id="review-badge">0</b></a
+          >
+          <a class="nav-item" href="#mistakes" data-view="mistakes"
+            ><span>↗</span>Mistake book</a
+          >
+          <a class="nav-item" href="#insights" data-view="insights"
+            ><span>◔</span>Insights</a
+          >
         </nav>
         <div class="sidebar-bottom">
-          <button class="nav-item button-nav" id="theme-button"><span>◐</span>Change theme</button>
-          <button class="nav-item button-nav" id="settings-nav-button"><span>⚙️</span>Settings</button>
-          <button class="nav-item button-nav hidden" id="login-nav-button"><span>👤</span>Log in to sync</button>
-          <button class="nav-item button-nav hidden" id="logout-button"><span>⎋</span>Log out</button>
+          <button class="nav-item button-nav" id="theme-button">
+            <span>◐</span>Change theme
+          </button>
+          <button class="nav-item button-nav" id="settings-nav-button">
+            <span>⚙️</span>Settings
+          </button>
+          <button class="nav-item button-nav hidden" id="login-nav-button">
+            <span>👤</span>Log in to sync
+          </button>
+          <button class="nav-item button-nav hidden" id="logout-button">
+            <span>⎋</span>Log out
+          </button>
           <p>Built for deliberate practice,<br />not perfect streaks.</p>
         </div>
       </aside>
@@ -45,8 +76,21 @@
         <header class="topbar">
           <div id="header-date" class="eyebrow"></div>
           <div class="top-actions">
-            <button class="icon-button" id="ocr-button" title="Capture Question" style="font-size: 17px;">📷</button>
-            <button class="icon-button" id="add-task-button" title="Add study task">+</button>
+            <button
+              class="icon-button"
+              id="ocr-button"
+              title="Capture Question"
+              style="font-size: 17px"
+            >
+              📷
+            </button>
+            <button
+              class="icon-button"
+              id="add-task-button"
+              title="Add study task"
+            >
+              +
+            </button>
             <button class="avatar" title="Local profile">A</button>
           </div>
         </header>
@@ -58,211 +102,821 @@
               <h1>Make today <em>count.</em></h1>
               <p class="muted" id="today-summary"></p>
             </div>
-            <button class="primary-button" id="start-review-button">Start a review <span>→</span></button>
+            <button class="primary-button" id="start-review-button">
+              Start a review <span>→</span>
+            </button>
           </div>
           <div class="stat-grid" id="stat-grid"></div>
           <div class="dashboard-grid">
             <section class="panel today-panel">
-              <div class="panel-heading"><div><p class="eyebrow">TODAY'S FOCUS</p><h2>Small steps, real progress.</h2></div><button class="text-button" data-go="plan">View plan →</button></div>
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">TODAY'S FOCUS</p>
+                  <h2>Small steps, real progress.</h2>
+                </div>
+                <button class="text-button" data-go="plan">View plan →</button>
+              </div>
               <div id="overdue-tasks"></div>
               <div id="today-tasks" class="task-list"></div>
             </section>
             <section class="panel rhythm-panel">
-              <div class="panel-heading"><div><p class="eyebrow">STUDY RHYTHM</p><h2>Last 7 days</h2></div><span id="weekly-total" class="mono muted"></span></div>
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">STUDY RHYTHM</p>
+                  <h2>Last 7 days</h2>
+                </div>
+                <span id="weekly-total" class="mono muted"></span>
+              </div>
               <div id="heatmap" class="heatmap"></div>
-              <p class="callout"><span>✦</span> Consistency beats cramming. A 25-minute recall session still counts.</p>
+              <p class="callout">
+                <span>✦</span> Consistency beats cramming. A 25-minute recall
+                session still counts.
+              </p>
             </section>
           </div>
           <section class="panel due-panel">
-            <div class="panel-heading"><div><p class="eyebrow">RECALL, DON'T REREAD</p><h2>Ready for a quick review</h2></div><button class="text-button" data-go="review">Open queue →</button></div>
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">RECALL, DON'T REREAD</p>
+                <h2>Ready for a quick review</h2>
+              </div>
+              <button class="text-button" data-go="review">Open queue →</button>
+            </div>
             <div id="due-preview" class="due-preview"></div>
           </section>
           <section class="panel pomodoro-panel">
-            <div class="panel-heading"><div><p class="eyebrow">POMODORO</p><h2>One focused block.</h2></div></div>
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">POMODORO</p>
+                <h2>One focused block.</h2>
+              </div>
+            </div>
             <div class="timer-layout">
-              <div class="timer-clock"><div id="timer-display">25:00</div><div id="timer-progress" class="timer-progress"><span></span></div><span id="timer-mode">FOCUS</span></div>
-              <div class="timer-controls"><div class="timer-link"><label for="timer-linked-task">Link to session</label><select id="timer-linked-task"><option value="">None</option></select></div><div class="timer-settings"><label>Focus <input id="timer-focus" type="number" min="5" max="120" step="5" /> min</label><label>Break <input id="timer-break" type="number" min="5" max="60" step="5" /> min</label></div><div class="timer-buttons"><button id="timer-start" class="primary-button">Start focus</button><button id="timer-reset" class="secondary-button">Reset</button></div><p class="muted">When the timer ends, it moves to your break automatically.</p></div>
+              <div class="timer-clock">
+                <div id="timer-display">25:00</div>
+                <div id="timer-progress" class="timer-progress">
+                  <span></span>
+                </div>
+                <span id="timer-mode">FOCUS</span>
+              </div>
+              <div class="timer-controls">
+                <div class="timer-link">
+                  <label for="timer-linked-task">Link to session</label
+                  ><select id="timer-linked-task">
+                    <option value="">None</option>
+                  </select>
+                </div>
+                <div class="timer-settings">
+                  <label
+                    >Focus
+                    <input
+                      id="timer-focus"
+                      type="number"
+                      min="5"
+                      max="120"
+                      step="5"
+                    />
+                    min</label
+                  ><label
+                    >Break
+                    <input
+                      id="timer-break"
+                      type="number"
+                      min="5"
+                      max="60"
+                      step="5"
+                    />
+                    min</label
+                  >
+                </div>
+                <div class="timer-buttons">
+                  <button id="timer-start" class="primary-button">
+                    Start focus</button
+                  ><button id="timer-reset" class="secondary-button">
+                    Reset
+                  </button>
+                </div>
+                <p class="muted">
+                  When the timer ends, it moves to your break automatically.
+                </p>
+              </div>
             </div>
           </section>
         </section>
 
         <section id="plan" class="view">
-          <div class="intro-row compact"><div><p class="eyebrow">ADAPTIVE SCHEDULE</p><h1>Your study <em>plan.</em></h1><p class="muted">Edit any session. The plan is a guide, not a contract.</p></div><button class="primary-button" id="generate-plan-button">Generate schedule <span>→</span></button></div>
-          <div class="plan-layout">
-            <section class="panel settings-panel"><p class="eyebrow">PLAN SETTINGS</p><form id="plan-settings-form">
-              <label>Exam date <input id="exam-date" type="date" required /></label>
-              <div class="availability-block"><span>Study availability</span><small>Choose your study days and hours. This is the only scheduling input.</small><div id="availability-editor" class="availability-editor"></div><div class="availability-bulk"><label>Set selected days to <input id="bulk-availability-hours" type="number" min="0.5" max="8" step="0.5" value="2" /> hrs</label><button id="apply-bulk-availability" type="button" class="secondary-button">Apply</button></div><p id="availability-total" class="settings-status"></p></div>
-              <p id="settings-status" class="settings-status">Changes save automatically.</p>
-            </form></section>
-            <section class="panel topics-panel"><div class="panel-heading"><div><p class="eyebrow">TOPIC MAP</p><h2>What you’re learning</h2></div><button class="text-button" id="add-topic-button">+ Add topic</button></div><div id="topic-list" class="topic-list"></div></section>
+          <div class="intro-row compact">
+            <div>
+              <p class="eyebrow">ADAPTIVE SCHEDULE</p>
+              <h1>Your study <em>plan.</em></h1>
+              <p class="muted">
+                Edit any session. The plan is a guide, not a contract.
+              </p>
+            </div>
+            <button class="primary-button" id="generate-plan-button">
+              Generate schedule <span>→</span>
+            </button>
           </div>
-          <section class="panel calendar-panel"><div class="panel-heading"><div><p class="eyebrow">NEXT 14 DAYS</p><h2>Your schedule</h2></div><span class="muted mono" id="plan-capacity"></span></div><div id="schedule-list" class="schedule-list"></div></section>
+          <div class="plan-layout">
+            <section class="panel settings-panel">
+              <p class="eyebrow">PLAN SETTINGS</p>
+              <form id="plan-settings-form">
+                <label
+                  >Exam date <input id="exam-date" type="date" required
+                /></label>
+                <div class="availability-block">
+                  <span>Study availability</span
+                  ><small
+                    >Choose your study days and hours. This is the only
+                    scheduling input.</small
+                  >
+                  <div
+                    id="availability-editor"
+                    class="availability-editor"
+                  ></div>
+                  <div class="availability-bulk">
+                    <label
+                      >Set selected days to
+                      <input
+                        id="bulk-availability-hours"
+                        type="number"
+                        min="0.5"
+                        max="8"
+                        step="0.5"
+                        value="2"
+                      />
+                      hrs</label
+                    ><button
+                      id="apply-bulk-availability"
+                      type="button"
+                      class="secondary-button"
+                    >
+                      Apply
+                    </button>
+                  </div>
+                  <p id="availability-total" class="settings-status"></p>
+                </div>
+                <p id="settings-status" class="settings-status">
+                  Changes save automatically.
+                </p>
+              </form>
+            </section>
+            <section class="panel topics-panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">TOPIC MAP</p>
+                  <h2>What you’re learning</h2>
+                </div>
+                <button class="text-button" id="add-topic-button">
+                  + Add topic
+                </button>
+              </div>
+              <div id="topic-list" class="topic-list"></div>
+            </section>
+          </div>
+          <section class="panel calendar-panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">NEXT 14 DAYS</p>
+                <h2>Your schedule</h2>
+              </div>
+              <span class="muted mono" id="plan-capacity"></span>
+            </div>
+            <div id="schedule-list" class="schedule-list"></div>
+          </section>
         </section>
 
         <section id="review" class="view">
-          <div class="intro-row compact"><div><p class="eyebrow">SPACED REPETITION</p><h1>Review <em>with intent.</em></h1><p class="muted">Rate your recall honestly. Hard cards come back sooner.</p></div><div style="display:flex;gap:8px;"><button class="secondary-button ocr-trigger" title="Capture from image">📷 Capture</button><button class="secondary-button" id="new-card-button">+ New card</button></div></div>
-          <div id="review-empty" class="empty-state hidden"><div class="empty-orb">✦</div><h2>Your queue is clear.</h2><p>Great work. Add a flashcard or return when the next review is due.</p><button class="primary-button" id="empty-new-card">Create a flashcard</button></div>
-          <section id="flashcard-stage" class="flashcard-stage hidden"><p class="mono muted" id="card-count"></p><article class="flashcard" id="flashcard"><button id="flip-card" aria-label="Flip card"><span class="card-label">PROMPT · click to reveal</span><h2 id="card-front"></h2><p id="card-back" class="hidden"></p><span class="flip-hint">↻</span></button></article><div id="review-actions" class="review-actions hidden"><button data-rating="again" class="rating again">Again <small>&lt; 1 day</small></button><button data-rating="hard" class="rating hard">Hard <small>2 days</small></button><button data-rating="good" class="rating good">Good <small>5 days</small></button><button data-rating="easy" class="rating easy">Easy <small>12 days</small></button></div></section>
-          <section class="panel all-cards"><div class="panel-heading"><div><p class="eyebrow">YOUR LIBRARY</p><h2>Flashcards</h2></div></div><div id="card-list" class="card-list"></div></section>
+          <div class="intro-row compact">
+            <div>
+              <p class="eyebrow">SPACED REPETITION</p>
+              <h1>Review <em>with intent.</em></h1>
+              <p class="muted">
+                Rate your recall honestly. Hard cards come back sooner.
+              </p>
+            </div>
+            <div style="display: flex; gap: 8px">
+              <button
+                class="secondary-button ocr-trigger"
+                title="Capture from image"
+              >
+                📷 Capture</button
+              ><button class="secondary-button" id="new-card-button">
+                + New card
+              </button>
+            </div>
+          </div>
+          <div id="review-empty" class="empty-state hidden">
+            <div class="empty-orb">✦</div>
+            <h2>Your queue is clear.</h2>
+            <p>
+              Great work. Add a flashcard or return when the next review is due.
+            </p>
+            <button class="primary-button" id="empty-new-card">
+              Create a flashcard
+            </button>
+          </div>
+          <section id="flashcard-stage" class="flashcard-stage hidden">
+            <p class="mono muted" id="card-count"></p>
+            <article class="flashcard" id="flashcard">
+              <button id="flip-card" aria-label="Flip card">
+                <span class="card-label">PROMPT · click to reveal</span>
+                <h2 id="card-front"></h2>
+                <p id="card-back" class="hidden"></p>
+                <span class="flip-hint">↻</span>
+              </button>
+            </article>
+            <div id="review-actions" class="review-actions hidden">
+              <button data-rating="again" class="rating again">
+                Again <small>&lt; 1 day</small></button
+              ><button data-rating="hard" class="rating hard">
+                Hard <small>2 days</small></button
+              ><button data-rating="good" class="rating good">
+                Good <small>5 days</small></button
+              ><button data-rating="easy" class="rating easy">
+                Easy <small>12 days</small>
+              </button>
+            </div>
+          </section>
+          <section class="panel all-cards">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">YOUR LIBRARY</p>
+                <h2>Flashcards</h2>
+              </div>
+            </div>
+            <div id="card-list" class="card-list"></div>
+          </section>
         </section>
 
         <section id="mistakes" class="view">
-          <div class="intro-row compact"><div><p class="eyebrow">ERROR-DRIVEN LEARNING</p><h1>Your mistake <em>book.</em></h1><p class="muted">Turn errors into targeted recall prompts. No shame, just data.</p></div><div style="display:flex;gap:8px;"><button class="secondary-button ocr-trigger" title="Capture from image">📷 Capture</button><button class="primary-button" id="new-mistake-button">Log a mistake <span>+</span></button></div></div>
-          <section class="panel"><div id="mistake-list" class="mistake-list"></div></section>
+          <div class="intro-row compact">
+            <div>
+              <p class="eyebrow">ERROR-DRIVEN LEARNING</p>
+              <h1>Your mistake <em>book.</em></h1>
+              <p class="muted">
+                Turn errors into targeted recall prompts. No shame, just data.
+              </p>
+            </div>
+            <div style="display: flex; gap: 8px">
+              <button
+                class="secondary-button ocr-trigger"
+                title="Capture from image"
+              >
+                📷 Capture</button
+              ><button class="primary-button" id="new-mistake-button">
+                Log a mistake <span>+</span>
+              </button>
+            </div>
+          </div>
+          <section class="panel">
+            <div id="mistake-list" class="mistake-list"></div>
+          </section>
         </section>
 
-        <section id="insights" class="view"><div class="intro-row compact"><div><p class="eyebrow">LEARNING SIGNALS</p><h1>Notice the <em>pattern.</em></h1><p class="muted">Use these signals to adjust effort, not judge yourself.</p></div></div><div id="insights-content" class="insights-grid"></div><section class="panel"><p class="eyebrow">METHOD, LIGHTLY APPLIED</p><div class="method-grid"><div><b>Active recall</b><p>Answer before you look. Retrieval strengthens memory more than rereading.</p></div><div><b>Spaced reviews</b><p>Revisit just before forgetting. Short intervals for difficult ideas; longer for solid ones.</p></div><div><b>Deliberate practice</b><p>Record why an answer failed and practise that exact gap next time.</p></div></div></section></section>
+        <section id="insights" class="view">
+          <div class="intro-row compact">
+            <div>
+              <p class="eyebrow">LEARNING SIGNALS</p>
+              <h1>Notice the <em>pattern.</em></h1>
+              <p class="muted">
+                Use these signals to adjust effort, not judge yourself.
+              </p>
+            </div>
+          </div>
+          <div id="insights-content" class="insights-grid"></div>
+          <section class="panel">
+            <p class="eyebrow">METHOD, LIGHTLY APPLIED</p>
+            <div class="method-grid">
+              <div>
+                <b>Active recall</b>
+                <p>
+                  Answer before you look. Retrieval strengthens memory more than
+                  rereading.
+                </p>
+              </div>
+              <div>
+                <b>Spaced reviews</b>
+                <p>
+                  Revisit just before forgetting. Short intervals for difficult
+                  ideas; longer for solid ones.
+                </p>
+              </div>
+              <div>
+                <b>Deliberate practice</b>
+                <p>
+                  Record why an answer failed and practise that exact gap next
+                  time.
+                </p>
+              </div>
+            </div>
+          </section>
+        </section>
       </main>
     </div>
 
-    <dialog id="modal"><form method="dialog" id="modal-form"><button class="modal-close" id="modal-close" type="button" aria-label="Close">×</button><div id="modal-content"></div></form></dialog>
-    <dialog id="confirm-dialog"><div class="confirm-body"><h2 class="modal-title" id="confirm-title"></h2><p class="modal-copy" id="confirm-message"></p><div class="modal-actions"><button id="confirm-cancel" class="secondary-button">Cancel</button><button id="confirm-ok" class="primary-button">Continue</button></div></div></dialog>
+    <dialog id="modal">
+      <form method="dialog" id="modal-form">
+        <button
+          class="modal-close"
+          id="modal-close"
+          type="button"
+          aria-label="Close"
+        >
+          ×
+        </button>
+        <div id="modal-content"></div>
+      </form>
+    </dialog>
+    <dialog id="confirm-dialog">
+      <div class="confirm-body">
+        <h2 class="modal-title" id="confirm-title"></h2>
+        <p class="modal-copy" id="confirm-message"></p>
+        <div class="modal-actions">
+          <button id="confirm-cancel" class="secondary-button">Cancel</button
+          ><button id="confirm-ok" class="primary-button">Continue</button>
+        </div>
+      </div>
+    </dialog>
     <dialog id="ocr-dialog">
-      <div class="confirm-body" style="width: 480px; max-width: 100%;">
+      <div class="confirm-body" style="width: 480px; max-width: 100%">
         <h2 class="modal-title">Capture Question</h2>
         <p class="modal-copy">Paste an image (Ctrl+V) or click to upload.</p>
         <div id="ocr-dropzone" class="ocr-dropzone">
-          <input type="file" id="ocr-file-input" accept="image/*" class="hidden">
+          <input
+            type="file"
+            id="ocr-file-input"
+            accept="image/*"
+            class="hidden"
+          />
           <div id="ocr-preview" class="ocr-preview hidden"></div>
           <p id="ocr-prompt">Click or Paste Image Here</p>
-          <div id="ocr-progress-container" class="timer-progress hidden" style="margin-top: 15px; width: 100%;">
+          <div
+            id="ocr-progress-container"
+            class="timer-progress hidden"
+            style="margin-top: 15px; width: 100%"
+          >
             <span id="ocr-progress-bar"></span>
           </div>
-          <p id="ocr-status" class="muted hidden" style="font-size: 11px; margin-top: 5px;">Extracting text...</p>
+          <p
+            id="ocr-status"
+            class="muted hidden"
+            style="font-size: 11px; margin-top: 5px"
+          >
+            Extracting text...
+          </p>
         </div>
-        <div id="ocr-result-container" class="hidden" style="margin-top: 15px;">
-          <label class="modal-field">Extracted Text (Edit if needed)<textarea id="ocr-text-result" style="min-height: 120px;"></textarea></label>
-          <div class="modal-actions" style="margin-top: 15px; justify-content: space-between;">
-            <button id="ocr-cancel" class="secondary-button" type="button">Cancel</button>
-            <div style="display: flex; gap: 8px;">
-              <button id="ocr-save-flashcard" class="secondary-button" type="button">Flashcard</button>
-              <button id="ocr-save-mistake" class="primary-button" type="button">Mistake Book</button>
+        <div id="ocr-result-container" class="hidden" style="margin-top: 15px">
+          <label class="modal-field"
+            >Extracted Text (Edit if needed)<textarea
+              id="ocr-text-result"
+              style="min-height: 120px"
+            ></textarea>
+          </label>
+          <div
+            class="modal-actions"
+            style="margin-top: 15px; justify-content: space-between"
+          >
+            <button id="ocr-cancel" class="secondary-button" type="button">
+              Cancel
+            </button>
+            <div style="display: flex; gap: 8px">
+              <button
+                id="ocr-save-flashcard"
+                class="secondary-button"
+                type="button"
+              >
+                Flashcard
+              </button>
+              <button
+                id="ocr-save-mistake"
+                class="primary-button"
+                type="button"
+              >
+                Mistake Book
+              </button>
             </div>
           </div>
         </div>
         <div id="ocr-initial-actions" class="modal-actions">
-          <button id="ocr-close" class="secondary-button" type="button" style="margin-left: auto;">Cancel</button>
+          <button
+            id="ocr-close"
+            class="secondary-button"
+            type="button"
+            style="margin-left: auto"
+          >
+            Cancel
+          </button>
         </div>
       </div>
     </dialog>
     <dialog id="auth-dialog">
-      <div class="confirm-body" style="padding: 28px; width: 380px; max-width: 100%; text-align: center; margin: 0 auto; position: relative;">
+      <div
+        class="confirm-body"
+        style="
+          padding: 28px;
+          width: 380px;
+          max-width: 100%;
+          text-align: center;
+          margin: 0 auto;
+          position: relative;
+        "
+      >
         <button class="modal-close" type="button" id="auth-close">×</button>
-        <h2 class="modal-title" style="margin-bottom: 8px;">Welcome to Estudio!</h2>
-        <p class="modal-copy" style="margin-bottom: 24px;">Log in to sync your study data.</p>
-        <button type="button" id="auth-google-btn" class="secondary-button" style="width: 100%; margin-bottom: 16px;">Sign in with Google</button>
-        <div style="font-size: 11px; color: var(--muted); margin-bottom: 16px;">- OR -</div>
-        <form id="auth-form" style="text-align: left;">
-          <label class="modal-field">Email<input type="email" id="auth-email" required autocomplete="email"></label>
-          <label class="modal-field" style="margin-top:12px;">Password<input type="password" id="auth-password" required minlength="8" autocomplete="current-password"></label>
-          <p id="auth-error" class="hidden" style="color: var(--accent); font-size: 12px; margin-top: 10px;"></p>
-          <div class="modal-actions" style="margin-top: 24px;">
-            <button type="button" id="auth-skip-btn" class="secondary-button" style="margin-right: auto; border: none; background: transparent; font-size: 11px;">Skip (Offline)</button>
-            <button type="button" id="auth-signup-btn" class="secondary-button">Sign Up</button>
-            <button type="submit" id="auth-login-btn" class="primary-button">Log In</button>
+        <h2 class="modal-title" style="margin-bottom: 8px">
+          Welcome to Estudio!
+        </h2>
+        <p class="modal-copy" style="margin-bottom: 24px">
+          Log in to sync your study data.
+        </p>
+        <button
+          type="button"
+          id="auth-google-btn"
+          class="secondary-button"
+          style="width: 100%; margin-bottom: 16px"
+        >
+          Sign in with Google
+        </button>
+        <div style="font-size: 11px; color: var(--muted); margin-bottom: 16px">
+          - OR -
+        </div>
+        <form id="auth-form" style="text-align: left">
+          <label class="modal-field"
+            >Email<input
+              type="email"
+              id="auth-email"
+              required
+              autocomplete="email"
+          /></label>
+          <label class="modal-field" style="margin-top: 12px"
+            >Password<input
+              type="password"
+              id="auth-password"
+              required
+              minlength="8"
+              autocomplete="current-password"
+          /></label>
+          <p
+            id="auth-error"
+            class="hidden"
+            style="color: var(--accent); font-size: 12px; margin-top: 10px"
+          ></p>
+          <div class="modal-actions" style="margin-top: 24px">
+            <button
+              type="button"
+              id="auth-skip-btn"
+              class="secondary-button"
+              style="
+                margin-right: auto;
+                border: none;
+                background: transparent;
+                font-size: 11px;
+              "
+            >
+              Skip (Offline)
+            </button>
+            <button type="button" id="auth-signup-btn" class="secondary-button">
+              Sign Up
+            </button>
+            <button type="submit" id="auth-login-btn" class="primary-button">
+              Log In
+            </button>
           </div>
         </form>
-        <form id="otp-form" class="hidden" style="text-align: left;">
-          <p class="modal-copy" style="margin-bottom: 16px;">We sent a 6-digit code to your email. Enter it below to verify your account.</p>
-          <label class="modal-field">Verification Code<input type="text" id="otp-code" required pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" style="text-align: center; letter-spacing: 4px; font-size: 18px; font-weight: bold;"></label>
-          <p id="otp-error" class="hidden" style="color: var(--accent); font-size: 12px; margin-top: 10px;"></p>
-          <div class="modal-actions" style="margin-top: 24px;">
-            <button type="button" id="otp-back-btn" class="secondary-button" style="margin-right: auto;">Back</button>
-            <button type="submit" id="otp-verify-btn" class="primary-button">Verify</button>
+        <form id="otp-form" class="hidden" style="text-align: left">
+          <p class="modal-copy" style="margin-bottom: 16px">
+            We sent a 6-digit code to your email. Enter it below to verify your
+            account.
+          </p>
+          <label class="modal-field"
+            >Verification Code<input
+              type="text"
+              id="otp-code"
+              required
+              pattern="[0-9]{6}"
+              maxlength="6"
+              autocomplete="one-time-code"
+              style="
+                text-align: center;
+                letter-spacing: 4px;
+                font-size: 18px;
+                font-weight: bold;
+              "
+          /></label>
+          <p
+            id="otp-error"
+            class="hidden"
+            style="color: var(--accent); font-size: 12px; margin-top: 10px"
+          ></p>
+          <div class="modal-actions" style="margin-top: 24px">
+            <button
+              type="button"
+              id="otp-back-btn"
+              class="secondary-button"
+              style="margin-right: auto"
+            >
+              Back
+            </button>
+            <button type="submit" id="otp-verify-btn" class="primary-button">
+              Verify
+            </button>
           </div>
         </form>
       </div>
     </dialog>
     <dialog id="settings-dialog">
-      <div class="confirm-body" style="padding: 28px; width: 400px; max-width: 100%; margin: 0 auto; position: relative;">
+      <div
+        class="confirm-body"
+        style="
+          padding: 28px;
+          width: 400px;
+          max-width: 100%;
+          margin: 0 auto;
+          position: relative;
+        "
+      >
         <button class="modal-close" type="button" id="settings-close">×</button>
         <h2 class="modal-title">Settings</h2>
-        <div id="ai-local-warning" class="hidden" style="color:var(--coral); font-size:12px; margin: 10px 0; padding: 10px; border: 1px solid var(--coral); border-radius: 6px; background: color-mix(in srgb, var(--coral) 10%, transparent);">AI Copilot is disabled on public domains for your security. Please run the app locally (localhost or file://) to use these features.</div>
-        <form id="settings-form" style="text-align: left; margin-top: 15px;">
-          <label class="modal-field">AI Copilot Provider
+        <div
+          id="ai-local-warning"
+          class="hidden"
+          style="
+            color: var(--coral);
+            font-size: 12px;
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid var(--coral);
+            border-radius: 6px;
+            background: color-mix(in srgb, var(--coral) 10%, transparent);
+          "
+        >
+          AI Copilot is disabled on public domains for your security. Please run
+          the app locally (localhost or file://) to use these features.
+        </div>
+        <form id="settings-form" style="text-align: left; margin-top: 15px">
+          <label class="modal-field"
+            >AI Copilot Provider
             <select id="settings-ai-provider">
               <option value="gemini">Google Gemini</option>
               <option value="openai">OpenAI</option>
               <option value="claude">Anthropic Claude</option>
             </select>
           </label>
-          <div id="settings-keys" style="margin-top: 15px;">
-            <label class="modal-field" data-provider="gemini">Gemini API Key
-              <input type="password" id="settings-key-gemini" placeholder="AIzaSy...">
+          <div id="settings-keys" style="margin-top: 15px">
+            <label class="modal-field" data-provider="gemini"
+              >Gemini API Key
+              <input
+                type="password"
+                id="settings-key-gemini"
+                placeholder="AIzaSy..."
+              />
             </label>
-            <label class="modal-field hidden" data-provider="openai">OpenAI API Key
-              <input type="password" id="settings-key-openai" placeholder="sk-...">
+            <label class="modal-field hidden" data-provider="openai"
+              >OpenAI API Key
+              <input
+                type="password"
+                id="settings-key-openai"
+                placeholder="sk-..."
+              />
             </label>
-            <label class="modal-field hidden" data-provider="claude">Claude API Key
-              <input type="password" id="settings-key-claude" placeholder="sk-ant-...">
+            <label class="modal-field hidden" data-provider="claude"
+              >Claude API Key
+              <input
+                type="password"
+                id="settings-key-claude"
+                placeholder="sk-ant-..."
+              />
             </label>
-            <p class="muted" style="margin-top: 8px;">Keys are stored securely in your local browser only. They are not synced to the cloud.</p>
+            <p class="muted" style="margin-top: 8px">
+              Keys are stored securely in your local browser only. They are not
+              synced to the cloud.
+            </p>
           </div>
-          <div class="modal-actions" style="margin-top: 24px;">
-            <button type="button" id="settings-cancel" class="secondary-button">Cancel</button>
-            <button type="submit" id="settings-save" class="primary-button">Save Settings</button>
+          <div class="modal-actions" style="margin-top: 24px">
+            <button type="button" id="settings-cancel" class="secondary-button">
+              Cancel
+            </button>
+            <button type="submit" id="settings-save" class="primary-button">
+              Save Settings
+            </button>
           </div>
-          <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border);">
-            <p class="muted" style="margin-bottom: 8px;">Data & Export</p>
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
-              <button type="button" id="settings-export-json" class="secondary-button" style="width: 100%; font-size: 11px;">Export JSON</button>
-              <button type="button" id="settings-import-btn" class="secondary-button" style="width: 100%; font-size: 11px;">Import JSON</button>
-              <input type="file" id="settings-import-file" accept=".json" class="hidden">
+          <div
+            style="
+              margin-top: 24px;
+              padding-top: 16px;
+              border-top: 1px solid var(--border);
+            "
+          >
+            <p class="muted" style="margin-bottom: 8px">Data & Export</p>
+            <div
+              style="
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+                margin-bottom: 8px;
+              "
+            >
+              <button
+                type="button"
+                id="settings-export-json"
+                class="secondary-button"
+                style="width: 100%; font-size: 11px"
+              >
+                Export JSON
+              </button>
+              <button
+                type="button"
+                id="settings-import-btn"
+                class="secondary-button"
+                style="width: 100%; font-size: 11px"
+              >
+                Import JSON
+              </button>
+              <input
+                type="file"
+                id="settings-import-file"
+                accept=".json"
+                class="hidden"
+              />
             </div>
-            <button type="button" id="settings-export-ics" class="secondary-button" style="width: 100%; margin-bottom: 16px;">Export Schedule (.ics)</button>
-            <p class="muted" style="margin-bottom: 8px;">Danger Zone</p>
-            <button type="button" id="settings-delete-keys" class="secondary-button" style="width: 100%; margin-bottom: 8px;">Delete API Keys</button>
-            <button type="button" id="settings-delete-data" class="secondary-button" style="width: 100%; color: var(--accent); border-color: var(--accent);">Delete All Data & Reset App</button>
+            <button
+              type="button"
+              id="settings-export-ics"
+              class="secondary-button"
+              style="width: 100%; margin-bottom: 16px"
+            >
+              Export Schedule (.ics)
+            </button>
+            <p class="muted" style="margin-bottom: 8px">Danger Zone</p>
+            <button
+              type="button"
+              id="settings-delete-keys"
+              class="secondary-button"
+              style="width: 100%; margin-bottom: 8px"
+            >
+              Delete API Keys
+            </button>
+            <button
+              type="button"
+              id="settings-delete-data"
+              class="secondary-button"
+              style="
+                width: 100%;
+                color: var(--accent);
+                border-color: var(--accent);
+              "
+            >
+              Delete All Data & Reset App
+            </button>
           </div>
         </form>
       </div>
     </dialog>
     <dialog id="mobile-menu-dialog">
-      <div class="confirm-body" style="padding: 24px; width: 300px; max-width: 100%;">
-        <button class="modal-close" type="button" id="mobile-menu-close">×</button>
-        <h2 class="modal-title" style="margin-bottom: 16px;">Menu</h2>
-        <div id="mobile-exam-switcher" class="exam-switcher" style="display:block; border:none; padding:0; margin-bottom:20px;">
+      <div
+        class="confirm-body"
+        style="padding: 24px; width: 300px; max-width: 100%"
+      >
+        <button class="modal-close" type="button" id="mobile-menu-close">
+          ×
+        </button>
+        <h2 class="modal-title" style="margin-bottom: 16px">Menu</h2>
+        <div
+          id="mobile-exam-switcher"
+          class="exam-switcher"
+          style="display: block; border: none; padding: 0; margin-bottom: 20px"
+        >
           <label for="mobile-exam-select">CURRENT FOCUS</label>
-          <select id="mobile-exam-select" aria-label="Current study plan"></select>
-          <button class="text-button" id="mobile-new-exam-button" style="margin-top: 8px;">+ New study plan</button>
+          <select
+            id="mobile-exam-select"
+            aria-label="Current study plan"
+          ></select>
+          <button
+            class="text-button"
+            id="mobile-new-exam-button"
+            style="margin-top: 8px"
+          >
+            + New study plan
+          </button>
         </div>
-        <div style="display:flex; flex-direction:column; gap:8px;">
-          <button class="secondary-button" id="mobile-theme-button" style="text-align:left;"><span>◐</span> Change theme</button>
-          <button class="secondary-button" id="mobile-settings-button" style="text-align:left;"><span>⚙️</span> Settings</button>
-          <button class="primary-button hidden" id="mobile-login-button" style="text-align:left;"><span>👤</span> Log in to sync</button>
-          <button class="secondary-button hidden" id="mobile-logout-button" style="text-align:left; color: var(--coral); border-color: var(--coral);"><span>⎋</span> Log out</button>
+        <div style="display: flex; flex-direction: column; gap: 8px">
+          <button
+            class="secondary-button"
+            id="mobile-theme-button"
+            style="text-align: left"
+          >
+            <span>◐</span> Change theme
+          </button>
+          <button
+            class="secondary-button"
+            id="mobile-settings-button"
+            style="text-align: left"
+          >
+            <span>⚙️</span> Settings
+          </button>
+          <button
+            class="primary-button hidden"
+            id="mobile-login-button"
+            style="text-align: left"
+          >
+            <span>👤</span> Log in to sync
+          </button>
+          <button
+            class="secondary-button hidden"
+            id="mobile-logout-button"
+            style="
+              text-align: left;
+              color: var(--coral);
+              border-color: var(--coral);
+            "
+          >
+            <span>⎋</span> Log out
+          </button>
         </div>
       </div>
     </dialog>
     <dialog id="tutorial-dialog">
-      <div class="confirm-body" style="padding: 32px; width: 440px; max-width: 100%; text-align: center; position: relative;">
-        <button class="modal-close" type="button" id="tutorial-skip" title="Skip Tour">×</button>
+      <div
+        class="confirm-body"
+        style="
+          padding: 32px;
+          width: 440px;
+          max-width: 100%;
+          text-align: center;
+          position: relative;
+        "
+      >
+        <button
+          class="modal-close"
+          type="button"
+          id="tutorial-skip"
+          title="Skip Tour"
+        >
+          ×
+        </button>
         <div id="tutorial-step-1" class="tutorial-step">
-          <div class="empty-orb" style="margin-bottom:20px;">📚</div>
-          <h2 class="modal-title" style="margin-bottom:12px;">Welcome to Estudio</h2>
-          <p class="modal-copy">A calm, local-first study planner built entirely around active recall and spaced repetition.<br><br>Let's take a quick 4-step tour to see how to study effectively.</p>
+          <div class="empty-orb" style="margin-bottom: 20px">📚</div>
+          <h2 class="modal-title" style="margin-bottom: 12px">
+            Welcome to Estudio
+          </h2>
+          <p class="modal-copy">
+            A calm, local-first study planner built entirely around active
+            recall and spaced repetition.<br /><br />Let's take a quick 4-step
+            tour to see how to study effectively.
+          </p>
         </div>
         <div id="tutorial-step-2" class="tutorial-step hidden">
-          <div class="empty-orb" style="margin-bottom:20px;">▤</div>
-          <h2 class="modal-title" style="margin-bottom:12px;">The 14-Day Plan</h2>
-          <p class="modal-copy">Tell Estudio your daily availability. It will automatically generate an adaptive 14-day schedule that prioritizes your weakest topics and prevents burnout.</p>
+          <div class="empty-orb" style="margin-bottom: 20px">▤</div>
+          <h2 class="modal-title" style="margin-bottom: 12px">
+            The 14-Day Plan
+          </h2>
+          <p class="modal-copy">
+            Tell Estudio your daily availability. It will automatically generate
+            an adaptive 14-day schedule that prioritizes your weakest topics and
+            prevents burnout.
+          </p>
         </div>
         <div id="tutorial-step-3" class="tutorial-step hidden">
-          <div class="empty-orb" style="margin-bottom:20px;">◌</div>
-          <h2 class="modal-title" style="margin-bottom:12px;">The Review Queue</h2>
-          <p class="modal-copy">Every day, you'll get a batch of flashcards to review. Rate your recall honestly—Estudio uses a spaced repetition algorithm so hard cards come back sooner.</p>
+          <div class="empty-orb" style="margin-bottom: 20px">◌</div>
+          <h2 class="modal-title" style="margin-bottom: 12px">
+            The Review Queue
+          </h2>
+          <p class="modal-copy">
+            Every day, you'll get a batch of flashcards to review. Rate your
+            recall honestly—Estudio uses a spaced repetition algorithm so hard
+            cards come back sooner.
+          </p>
         </div>
         <div id="tutorial-step-4" class="tutorial-step hidden">
-          <div class="empty-orb" style="margin-bottom:20px;">🧠</div>
-          <h2 class="modal-title" style="margin-bottom:12px;">AI & OCR Copilot</h2>
-          <p class="modal-copy">Stuck on a problem? Paste a screenshot to extract the text, or ask the Bring-Your-Own-Key AI to instantly generate missing concepts for you.</p>
+          <div class="empty-orb" style="margin-bottom: 20px">🧠</div>
+          <h2 class="modal-title" style="margin-bottom: 12px">
+            AI & OCR Copilot
+          </h2>
+          <p class="modal-copy">
+            Stuck on a problem? Paste a screenshot to extract the text, or ask
+            the Bring-Your-Own-Key AI to instantly generate missing concepts for
+            you.
+          </p>
         </div>
-        <div class="modal-actions" style="margin-top: 32px; justify-content: space-between; align-items: center;">
-          <div id="tutorial-dots" style="display:flex; gap:6px; margin-left:8px;">
-            <span class="dot active"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        <div
+          class="modal-actions"
+          style="
+            margin-top: 32px;
+            justify-content: space-between;
+            align-items: center;
+          "
+        >
+          <div
+            id="tutorial-dots"
+            style="display: flex; gap: 6px; margin-left: 8px"
+          >
+            <span class="dot active"></span><span class="dot"></span
+            ><span class="dot"></span><span class="dot"></span>
           </div>
-          <div style="display:flex; gap:8px;">
-            <button id="tutorial-back" class="secondary-button hidden">Back</button>
+          <div style="display: flex; gap: 8px">
+            <button id="tutorial-back" class="secondary-button hidden">
+              Back
+            </button>
             <button id="tutorial-next" class="primary-button">Next</button>
           </div>
         </div>

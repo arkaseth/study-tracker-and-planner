@@ -1,7 +1,8 @@
 const jsdom = require("jsdom");
 const { JSDOM } = jsdom;
 
-const dom = new JSDOM(`<!DOCTYPE html>
+const dom = new JSDOM(
+  `<!DOCTYPE html>
 <html>
 <head>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -11,7 +12,9 @@ const dom = new JSDOM(`<!DOCTYPE html>
     console.log("Supabase type:", typeof window.supabase);
   </script>
 </body>
-</html>`, { runScripts: "dangerously", resources: "usable" });
+</html>`,
+  { runScripts: "dangerously", resources: "usable" },
+);
 
 dom.window.document.addEventListener("DOMContentLoaded", () => {
   setTimeout(() => {
