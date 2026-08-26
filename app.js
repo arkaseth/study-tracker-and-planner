@@ -56,7 +56,12 @@ function save() {
     saveTimeout = setTimeout(() => {
       const cloudState = JSON.parse(JSON.stringify(state));
       cloudState.ai.keys = { gemini: '', openai: '', claude: '' };
-      supabaseClient.from('study_data').upsert({id:currentUser.id, state: cloudState});
+      supabaseClient.from('study_data').upsert({id:currentUser.id, state: cloudState}).then(({error}) => {
+        if(error) {
+          console.error("Supabase Sync Error:", error);
+          toast("Cloud sync failed. Check console for details.");
+        }
+      });
     }, 1500); 
   }
 }
@@ -77,7 +82,12 @@ async function loadFromCloud() {
     state.exams.forEach(exam => { if (!exam.availability) exam.availability = createDefaultAvailability(exam.weeklyHours); exam.weeklyHours=availabilityHours(exam); });
     state.timer ||= {focus:25, break:5};
   } else {
-    supabaseClient.from('study_data').upsert({id:currentUser.id, state});
+    supabaseClient.from('study_data').upsert({id:currentUser.id, state}).then(({error}) => {
+      if(error) {
+        console.error("Initial Supabase Sync Error:", error);
+        toast("Initial cloud sync failed. Check console for details.");
+      }
+    });
   }
   renderAll();
 }
