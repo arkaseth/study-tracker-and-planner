@@ -1,0 +1,25 @@
+{
+  "name": "study-tracker-and-planner",
+  "version": "1.0.0",
+  "description": "A calm, local-first study planner built around active recall, spaced repetition, and error-driven practice.",
+  "main": "app.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arkaseth/study-tracker-and-planner.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/arkaseth/study-tracker-and-planner/issues"
+  },
+  "homepage": "https://github.com/arkaseth/study-tracker-and-planner#readme",
+  "devDependencies": {
+    "vite": "^8.2.2"
+  }
+}
