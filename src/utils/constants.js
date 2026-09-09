@@ -5,6 +5,10 @@ export const STORAGE_KEY = "reviso-study-data-v1";
 export const isLocal =
   ["localhost", "127.0.0.1", ""].includes(window.location.hostname) ||
   window.location.protocol === "file:";
+
+/** Sentinel value used in the template <select> to trigger custom JSON import */
+export const CUSTOM_TEMPLATE = "__custom__";
+
 export const templates = {
   CAT: [
     "Arithmetic & Algebra",
@@ -12,20 +16,6 @@ export const templates = {
     "Reading comprehension",
     "Logical reasoning",
     "Data interpretation",
-  ],
-  GMAT: [
-    "Quantitative reasoning",
-    "Verbal reasoning",
-    "Data insights",
-    "Critical reasoning",
-  ],
-  "GATE Chemical": [
-    "Process calculations",
-    "Thermodynamics",
-    "Fluid mechanics",
-    "Heat transfer",
-    "Mass transfer",
-    "Reaction engineering",
   ],
   "CFA Level I": [
     "Ethics",
@@ -51,6 +41,38 @@ export const templates = {
     "Equity",
     "Performance evaluation",
   ],
+  "GATE Chemical": [
+    "Process calculations",
+    "Thermodynamics",
+    "Fluid mechanics",
+    "Heat transfer",
+    "Mass transfer",
+    "Reaction engineering",
+  ],
+  GMAT: [
+    "Quantitative reasoning",
+    "Verbal reasoning",
+    "Data insights",
+    "Critical reasoning",
+  ],
+  GRE: [
+    "Verbal reasoning",
+    "Quantitative reasoning",
+    "Analytical writing",
+    "Text completion & sentence equivalence",
+    "Reading comprehension",
+  ],
+  "JEE Main+Advanced": [
+    "Physics – Mechanics",
+    "Physics – Electricity & Magnetism",
+    "Physics – Optics & Modern Physics",
+    "Chemistry – Physical",
+    "Chemistry – Organic",
+    "Chemistry – Inorganic",
+    "Mathematics – Algebra & Trigonometry",
+    "Mathematics – Calculus",
+    "Mathematics – Coordinate Geometry",
+  ],
   "System Design": [
     "Requirements & estimation",
     "Databases & caching",
@@ -60,6 +82,7 @@ export const templates = {
     "Mock interviews",
   ],
 };
+
 export const weekdayNames = [
   "Sunday",
   "Monday",
@@ -69,3 +92,4 @@ export const weekdayNames = [
   "Friday",
   "Saturday",
 ];
+
