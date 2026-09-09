@@ -213,3 +213,25 @@
   border-radius: 6px;
   margin-bottom: 10px;
 }
+
+.day-clear-btn {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 3px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.55;
+  transition: opacity 0.15s ease, color 0.15s ease, background 0.15s ease;
+  line-height: 1;
+}
+
+.day-clear-btn:hover {
+  opacity: 1;
+  color: var(--danger, var(--coral));
+  background: color-mix(in srgb, var(--coral) 15%, transparent);
+}
+

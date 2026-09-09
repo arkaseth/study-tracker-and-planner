@@ -586,7 +586,7 @@ main {
 }
 .schedule-day {
   display: grid;
-  grid-template-columns: 84px 1fr;
+  grid-template-columns: 140px 1fr;
   gap: 18px;
   padding: 14px 0;
   border-bottom: 1px solid var(--line);
@@ -989,8 +989,8 @@ dialog::backdrop {
     grid-template-columns: repeat(2, 1fr);
   }
   .schedule-day {
-    grid-template-columns: 64px 1fr;
-    gap: 7px;
+    grid-template-columns: 115px 1fr;
+    gap: 10px;
   }
   .flashcard {
     height: 255px;

@@ -5,6 +5,27 @@ import { weekdayNames } from "../utils/constants.js";
 import { toast, appConfirm, uid } from "../utils/helpers.js";
 import { useState } from "preact/hooks";
 
+function TrashIcon({ size = 13, style = {} }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      style={{ verticalAlign: 'middle', flexShrink: 0, ...style }}
+    >
+      <polyline points="3 6 5 6 21 6" />
+      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+      <line x1="10" y1="11" x2="10" y2="17" />
+      <line x1="14" y1="11" x2="14" y2="17" />
+    </svg>
+  );
+}
+
 export function Plan() {
   const rev = storeRev.value;
   const exam = currentExam();
@@ -16,12 +37,6 @@ export function Plan() {
   const [dragOverDate, setDragOverDate] = useState(null);
   // Bulk-select state: Set of selected task IDs
   const [selectedIds, setSelectedIds] = useState(new Set());
-
-  const toggleSelect = (id) => setSelectedIds(prev => {
-    const next = new Set(prev);
-    next.has(id) ? next.delete(id) : next.add(id);
-    return next;
-  });
 
   const clearSelected = async () => {
     const ok = await appConfirm('Delete selected sessions?', `Remove ${selectedIds.size} selected session(s)?`);
@@ -305,9 +320,11 @@ export function Plan() {
             <span className="muted mono">{exam.weeklyHours}h / week</span>
             <button
               className="secondary-button"
-              style={{ fontSize: '11px', padding: '4px 10px', minHeight: '30px', color: 'var(--danger)', borderColor: 'var(--danger)' }}
+              style={{ fontSize: '11px', padding: '4px 10px', minHeight: '30px', color: 'var(--danger)', borderColor: 'var(--danger)', display: 'inline-flex', alignItems: 'center', gap: '5px' }}
               onClick={clearAll}
-            >Clear all</button>
+            >
+              <TrashIcon size={12} /> Clear all
+            </button>
           </div>
         </div>
 
@@ -327,9 +344,11 @@ export function Plan() {
             >Deselect all</button>
             <button
               className="secondary-button"
-              style={{ fontSize: '11px', padding: '4px 12px', minHeight: '28px', color: 'var(--danger)', borderColor: 'var(--danger)' }}
+              style={{ fontSize: '11px', padding: '4px 12px', minHeight: '28px', color: 'var(--danger)', borderColor: 'var(--danger)', display: 'inline-flex', alignItems: 'center', gap: '5px' }}
               onClick={clearSelected}
-            >Delete selected</button>
+            >
+              <TrashIcon size={12} /> Delete selected
+            </button>
           </div>
         )}
         <div className="schedule-list">
@@ -356,34 +375,42 @@ export function Plan() {
                   setDraggingId(null);
                 }}
               >
-                <div className="schedule-date" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  {/* Day-level checkbox: selects/deselects all sessions on this day */}
-                  {ts.length > 0 && (
-                    <input
-                      type="checkbox"
-                      title={allDaySelected ? 'Deselect day' : 'Select all on this day'}
-                      checked={allDaySelected}
-                      style={{ cursor: 'pointer', accentColor: 'var(--accent)', flexShrink: 0 }}
-                      onChange={() => {
-                        setSelectedIds(prev => {
-                          const next = new Set(prev);
-                          if (allDaySelected) ts.forEach(t => next.delete(t.id));
-                          else ts.forEach(t => next.add(t.id));
-                          return next;
-                        });
-                      }}
-                    />
-                  )}
-                  <span style={{ flex: 1 }}>
-                    {formatDate(d)} {isPast && <span className="overdue-pill">overdue</span>}
-                  </span>
-                  {/* Per-day clear button */}
-                  {ts.length > 0 && (
-                    <button
-                      title="Clear all sessions on this day"
-                      style={{ background: 'none', border: 'none', color: 'var(--muted)', fontSize: '13px', cursor: 'pointer', padding: '0 2px', lineHeight: 1, opacity: 0.6 }}
-                      onClick={() => clearDay(d)}
-                    >🗑</button>
+                <div className="schedule-date">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    {/* Day-level checkbox: selects/deselects all sessions on this day */}
+                    {ts.length > 0 && (
+                      <input
+                        type="checkbox"
+                        title={allDaySelected ? 'Deselect day' : 'Select all on this day'}
+                        checked={allDaySelected}
+                        style={{ cursor: 'pointer', accentColor: 'var(--accent)', flexShrink: 0 }}
+                        onChange={() => {
+                          setSelectedIds(prev => {
+                            const next = new Set(prev);
+                            if (allDaySelected) ts.forEach(t => next.delete(t.id));
+                            else ts.forEach(t => next.add(t.id));
+                            return next;
+                          });
+                        }}
+                      />
+                    )}
+                    <span style={{ fontWeight: 600 }}>{formatDate(d)}</span>
+                    {/* Per-day clear button */}
+                    {ts.length > 0 && (
+                      <button
+                        type="button"
+                        className="day-clear-btn"
+                        title="Clear all sessions on this day"
+                        onClick={() => clearDay(d)}
+                      >
+                        <TrashIcon size={12} />
+                      </button>
+                    )}
+                  </div>
+                  {isPast && isOverdueDay && (
+                    <div style={{ marginTop: '3px' }}>
+                      <span className="overdue-pill" style={{ marginLeft: 0 }}>overdue</span>
+                    </div>
                   )}
                 </div>
                 <div className="session-list">
@@ -399,14 +426,6 @@ export function Plan() {
                       }}
                       onDragEnd={() => { setDraggingId(null); setDragOverDate(null); }}
                     >
-                      {/* Per-session checkbox */}
-                      <input
-                        type="checkbox"
-                        checked={selectedIds.has(t.id)}
-                        style={{ cursor: 'pointer', accentColor: 'var(--accent)', flexShrink: 0, marginRight: '4px' }}
-                        onChange={() => toggleSelect(t.id)}
-                        onClick={e => e.stopPropagation()}
-                      />
                       <span className="tag">{t.type}</span>
                       {t.topic} · {t.duration}m
                       {isPast && !t.done ? (
