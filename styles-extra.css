@@ -140,6 +140,9 @@
 .confirm-body {
   padding: 28px;
 }
+#settings-dialog {
+  width: min(460px, calc(100vw - 34px));
+}
 
 /* Concepts */
 .concept-btn {

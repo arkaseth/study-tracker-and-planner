@@ -302,6 +302,10 @@ main {
 }
 .primary-button,
 .secondary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   min-height: 42px;
   padding: 0 16px;
   border-radius: 7px;
@@ -314,9 +318,14 @@ main {
   background: var(--accent);
   color: var(--accent-ink);
 }
-.primary-button span {
+.primary-button span,
+.secondary-button span {
+  vertical-align: middle;
+  line-height: 1;
+}
+.primary-button > span:last-child {
   font-size: 18px;
-  margin-left: 10px;
+  margin-left: 6px;
 }
 .secondary-button {
   color: var(--ink);
@@ -739,6 +748,10 @@ main {
 }
 .mistake-row .mistake-info {
   max-width: 75%;
+}
+.mistake-row .pill {
+  display: inline-block;
+  margin-bottom: 8px;
 }
 .mistake-row .why {
   color: var(--coral);
