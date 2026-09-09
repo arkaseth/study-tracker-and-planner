@@ -107,6 +107,10 @@
 .session-overdue .tag {
   color: var(--coral) !important;
 }
+.session-selected {
+  border-color: var(--accent) !important;
+  background: color-mix(in srgb, var(--accent) 8%, var(--panel2)) !important;
+}
 
 /* Drag-and-drop */
 .session[draggable="true"] {

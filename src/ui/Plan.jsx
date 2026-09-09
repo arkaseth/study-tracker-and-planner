@@ -11,9 +11,48 @@ export function Plan() {
   if (!exam) return null;
 
   const [bulkHours, setBulkHours] = useState(2);
-  // Drag state: track which task id is being dragged
+  // Drag state
   const [draggingId, setDraggingId] = useState(null);
   const [dragOverDate, setDragOverDate] = useState(null);
+  // Bulk-select state: Set of selected task IDs
+  const [selectedIds, setSelectedIds] = useState(new Set());
+
+  const toggleSelect = (id) => setSelectedIds(prev => {
+    const next = new Set(prev);
+    next.has(id) ? next.delete(id) : next.add(id);
+    return next;
+  });
+
+  const clearSelected = async () => {
+    const ok = await appConfirm('Delete selected sessions?', `Remove ${selectedIds.size} selected session(s)?`);
+    if (!ok) return;
+    exam.tasks = exam.tasks.filter(t => !selectedIds.has(t.id));
+    setSelectedIds(new Set());
+    save();
+    toast('Selected sessions deleted.');
+  };
+
+  const clearDay = async (date) => {
+    const dayTasks = exam.tasks.filter(t => t.date === date);
+    if (!dayTasks.length) return;
+    const ok = await appConfirm('Clear day?', `Remove all ${dayTasks.length} session(s) on ${formatDate(date)}?`);
+    if (!ok) return;
+    exam.tasks = exam.tasks.filter(t => t.date !== date);
+    setSelectedIds(prev => { const next = new Set(prev); dayTasks.forEach(t => next.delete(t.id)); return next; });
+    save();
+    toast(`Cleared ${formatDate(date)}.`);
+  };
+
+  const clearAll = async () => {
+    const total = exam.tasks.length;
+    if (!total) { toast('No sessions to clear.'); return; }
+    const ok = await appConfirm('Clear all sessions?', `This will permanently remove all ${total} sessions — including overdue and upcoming. This cannot be undone.`);
+    if (!ok) return;
+    exam.tasks = [];
+    setSelectedIds(new Set());
+    save();
+    toast('All sessions cleared.');
+  };
 
   const updateAvailability = (day, field, value) => {
     if (!exam.availability) exam.availability = {};
@@ -262,14 +301,44 @@ export function Plan() {
             <p className="eyebrow">NEXT 14 DAYS</p>
             <h2>Your schedule</h2>
           </div>
-          <span className="muted mono">{exam.weeklyHours}h available / week</span>
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <span className="muted mono">{exam.weeklyHours}h / week</span>
+            <button
+              className="secondary-button"
+              style={{ fontSize: '11px', padding: '4px 10px', minHeight: '30px', color: 'var(--danger)', borderColor: 'var(--danger)' }}
+              onClick={clearAll}
+            >Clear all</button>
+          </div>
         </div>
+
+        {/* Floating bulk-action bar — visible when sessions are selected */}
+        {selectedIds.size > 0 && (
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: '12px',
+            background: 'var(--panel2)', border: '1px solid var(--line)',
+            borderRadius: '8px', padding: '10px 16px', marginBottom: '12px',
+            fontSize: '13px',
+          }}>
+            <span style={{ flex: 1 }}><strong>{selectedIds.size}</strong> session{selectedIds.size !== 1 ? 's' : ''} selected</span>
+            <button
+              className="secondary-button"
+              style={{ fontSize: '11px', padding: '4px 12px', minHeight: '28px' }}
+              onClick={() => setSelectedIds(new Set())}
+            >Deselect all</button>
+            <button
+              className="secondary-button"
+              style={{ fontSize: '11px', padding: '4px 12px', minHeight: '28px', color: 'var(--danger)', borderColor: 'var(--danger)' }}
+              onClick={clearSelected}
+            >Delete selected</button>
+          </div>
+        )}
         <div className="schedule-list">
           {allDates.map(d => {
             const ts = exam.tasks.filter(t => t.date === d);
             const isPast = d < today;
             const isOverdueDay = isPast && ts.some(t => !t.done);
-            
+            const allDaySelected = ts.length > 0 && ts.every(t => selectedIds.has(t.id));
+
             return (
               <div key={d} className={`schedule-day ${isOverdueDay ? 'schedule-day-overdue' : ''} ${dragOverDate === d ? 'drag-over' : ''}`}
                 onDragOver={e => { e.preventDefault(); setDragOverDate(d); }}
@@ -287,23 +356,57 @@ export function Plan() {
                   setDraggingId(null);
                 }}
               >
-                <div className="schedule-date">
-                  {formatDate(d)} {isPast && <span className="overdue-pill">overdue</span>}
+                <div className="schedule-date" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  {/* Day-level checkbox: selects/deselects all sessions on this day */}
+                  {ts.length > 0 && (
+                    <input
+                      type="checkbox"
+                      title={allDaySelected ? 'Deselect day' : 'Select all on this day'}
+                      checked={allDaySelected}
+                      style={{ cursor: 'pointer', accentColor: 'var(--accent)', flexShrink: 0 }}
+                      onChange={() => {
+                        setSelectedIds(prev => {
+                          const next = new Set(prev);
+                          if (allDaySelected) ts.forEach(t => next.delete(t.id));
+                          else ts.forEach(t => next.add(t.id));
+                          return next;
+                        });
+                      }}
+                    />
+                  )}
+                  <span style={{ flex: 1 }}>
+                    {formatDate(d)} {isPast && <span className="overdue-pill">overdue</span>}
+                  </span>
+                  {/* Per-day clear button */}
+                  {ts.length > 0 && (
+                    <button
+                      title="Clear all sessions on this day"
+                      style={{ background: 'none', border: 'none', color: 'var(--muted)', fontSize: '13px', cursor: 'pointer', padding: '0 2px', lineHeight: 1, opacity: 0.6 }}
+                      onClick={() => clearDay(d)}
+                    >🗑</button>
+                  )}
                 </div>
                 <div className="session-list">
                   {ts.map(t => (
                     <span
                       key={t.id}
-                      className={`session ${isPast && !t.done ? 'session-overdue' : ''} ${draggingId === t.id ? 'dragging' : ''}`}
+                      className={`session ${isPast && !t.done ? 'session-overdue' : ''} ${draggingId === t.id ? 'dragging' : ''} ${selectedIds.has(t.id) ? 'session-selected' : ''}`}
                       draggable={!t.done}
                       onDragStart={e => {
                         setDraggingId(t.id);
                         e.dataTransfer.effectAllowed = 'move';
-                        // Firefox requires data to be set
                         e.dataTransfer.setData('text/plain', t.id);
                       }}
                       onDragEnd={() => { setDraggingId(null); setDragOverDate(null); }}
                     >
+                      {/* Per-session checkbox */}
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.has(t.id)}
+                        style={{ cursor: 'pointer', accentColor: 'var(--accent)', flexShrink: 0, marginRight: '4px' }}
+                        onChange={() => toggleSelect(t.id)}
+                        onClick={e => e.stopPropagation()}
+                      />
                       <span className="tag">{t.type}</span>
                       {t.topic} · {t.duration}m
                       {isPast && !t.done ? (
