@@ -16,6 +16,17 @@ window.appConfirm = (title, message) => {
   });
 };
 
+export function GoogleIcon({ size = 18, style = {} }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" style={{ display: 'inline-block', verticalAlign: 'middle', flexShrink: 0, ...style }}>
+      <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+      <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+      <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+      <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
+    </svg>
+  );
+}
+
 /** JSON schema shown in the custom template tooltip */
 const CUSTOM_TEMPLATE_SCHEMA = `[
   "Topic name 1",
@@ -142,6 +153,8 @@ export function Modals() {
   const [ocrState, setOcrState] = useState({ phase: 'upload', image: null, progress: 0, status: '', text: '' });
   const [conceptTopicId, setConceptTopicId] = useState(null);
   const [customTopics, setCustomTopics] = useState(null); // topics from custom JSON import
+  const [authError, setAuthError] = useState('');
+  const [authMessage, setAuthMessage] = useState('');
 
   const authDialog = useRef(null);
   const settingsDialog = useRef(null);
@@ -164,7 +177,11 @@ export function Modals() {
 
   // Event Listeners
   useEffect(() => {
-    const handleOpenAuth = () => setActiveModal('auth');
+    const handleOpenAuth = () => {
+      setAuthError('');
+      setAuthMessage('');
+      setActiveModal('auth');
+    };
     const handleOpenSettings = () => setActiveModal('settings');
     const handleOpenMobileMenu = () => setActiveModal('mobileMenu');
     const handleOpenConfirm = (e) => {
@@ -217,13 +234,51 @@ export function Modals() {
     if (confirmResolve) confirmResolve(result);
   };
 
+  const handleGoogleSignIn = async () => {
+    try {
+      const { error } = await supabaseClient.auth.signInWithOAuth({
+        provider: "google",
+        options: { redirectTo: window.location.origin }
+      });
+      if (error) setAuthError(error.message);
+    } catch (err) {
+      setAuthError(err.message);
+    }
+  };
+
   const handleAuthSubmit = async (e) => {
     e.preventDefault();
-    const email = e.target.email.value;
+    setAuthError('');
+    setAuthMessage('');
+    const email = e.target.email.value.trim();
     const password = e.target.password.value;
     const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
-    if (error) toast(error.message);
-    else closeModals();
+    if (error) {
+      setAuthError(error.message);
+    } else {
+      closeModals();
+      toast("Logged in successfully.");
+    }
+  };
+
+  const handleSignUp = async (e) => {
+    const form = e.target.closest('form');
+    const email = form?.email?.value?.trim();
+    const password = form?.password?.value;
+    if (!email || !password || password.length < 8 || !/[a-zA-Z]/.test(password) || !/[0-9]/.test(password)) {
+      setAuthError('Enter email and 8+ char alphanumeric password.');
+      return;
+    }
+    setAuthError('');
+    setAuthMessage('');
+    const { error, data } = await supabaseClient.auth.signUp({ email, password });
+    if (error) {
+      setAuthError(error.message);
+    } else if (data?.user && data.user.identities && data.user.identities.length === 0) {
+      setAuthError('User already exists.');
+    } else {
+      setAuthMessage('Signup successful! Check your email confirmation link, then log in.');
+    }
   };
 
   const handleFormSubmit = (e) => {
@@ -297,17 +352,76 @@ export function Modals() {
         <div className="confirm-body" style={{ padding: "28px", width: "380px", maxWidth: "100%", textAlign: "center", margin: "0 auto", position: "relative" }}>
           <button className="modal-close" type="button" onClick={closeModals}>×</button>
           <h2 className="modal-title" style={{ marginBottom: "8px" }}>Welcome to Estudio!</h2>
-          <p className="modal-copy" style={{ marginBottom: "24px" }}>Log in to sync your study data.</p>
+          <p className="modal-copy" style={{ marginBottom: "20px" }}>Log in to sync your study data.</p>
+          
+          <button
+            type="button"
+            id="auth-google-btn"
+            className="secondary-button"
+            style={{
+              width: "100%",
+              marginBottom: "16px",
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "10px",
+              padding: "10px 16px",
+              fontWeight: 500,
+              fontSize: "13px",
+              cursor: "pointer",
+            }}
+            onClick={handleGoogleSignIn}
+          >
+            <GoogleIcon size={18} />
+            Sign in with Google
+          </button>
+
+          <div style={{ fontSize: "11px", color: "var(--muted)", marginBottom: "16px", display: "flex", alignItems: "center", gap: "10px" }}>
+            <span style={{ flex: 1, height: "1px", background: "var(--line)" }}></span>
+            <span>OR</span>
+            <span style={{ flex: 1, height: "1px", background: "var(--line)" }}></span>
+          </div>
+
           <form onSubmit={handleAuthSubmit} style={{ textAlign: "left" }}>
             <label className="modal-field">
-              Email <input name="email" type="email" required />
+              Email <input name="email" type="email" required autoComplete="email" placeholder="you@example.com" />
             </label>
             <label className="modal-field" style={{ marginTop: "12px" }}>
-              Password <input name="password" type="password" required minLength="8" />
+              Password <input name="password" type="password" required minLength="8" autoComplete="current-password" placeholder="••••••••" />
             </label>
+
+            {authError && (
+              <p style={{ color: "var(--coral)", fontSize: "12px", marginTop: "10px" }}>
+                {authError}
+              </p>
+            )}
+            {authMessage && (
+              <p style={{ color: "var(--ink)", fontSize: "12px", marginTop: "10px" }}>
+                {authMessage}
+              </p>
+            )}
+
             <div className="modal-actions" style={{ marginTop: "24px" }}>
-              <button type="button" className="secondary-button" onClick={closeModals} style={{ marginRight: "auto", border: "none" }}>Skip (Offline)</button>
-              <button type="submit" className="primary-button">Log In</button>
+              <button
+                type="button"
+                id="auth-skip-btn"
+                className="secondary-button"
+                onClick={closeModals}
+                style={{ marginRight: "auto", border: "none", background: "transparent", fontSize: "11px", color: "var(--muted)", cursor: "pointer" }}
+              >
+                Skip (Offline)
+              </button>
+              <button
+                type="button"
+                id="auth-signup-btn"
+                className="secondary-button"
+                onClick={handleSignUp}
+              >
+                Sign Up
+              </button>
+              <button type="submit" id="auth-login-btn" className="primary-button">
+                Log In
+              </button>
             </div>
           </form>
         </div>
@@ -490,7 +604,31 @@ export function Modals() {
           <h2 className="modal-title" style={{ marginBottom: "16px" }}>Menu</h2>
           <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
             <button className="secondary-button" onClick={() => { closeModals(); document.dispatchEvent(new CustomEvent('openSettings')); }}>Settings</button>
-            <button className="secondary-button" onClick={() => { closeModals(); document.dispatchEvent(new CustomEvent('openAuth')); }}>Login</button>
+            {!store.currentUser ? (
+              <>
+                <button
+                  className="primary-button"
+                  style={{ display: "inline-flex", alignItems: "center", gap: "8px", justifyContent: "center" }}
+                  onClick={() => {
+                    closeModals();
+                    supabaseClient.auth.signInWithOAuth({ provider: "google", options: { redirectTo: window.location.origin } });
+                  }}
+                >
+                  <GoogleIcon size={16} /> Sign in with Google
+                </button>
+                <button className="secondary-button" onClick={() => { closeModals(); document.dispatchEvent(new CustomEvent('openAuth')); }}>
+                  <span>👤</span> Email login / sync
+                </button>
+              </>
+            ) : (
+              <button
+                className="secondary-button"
+                style={{ color: "var(--coral)", borderColor: "var(--coral)" }}
+                onClick={() => { closeModals(); supabaseClient.auth.signOut(); }}
+              >
+                <span>⎋</span> Log out
+              </button>
+            )}
           </div>
         </div>
       </dialog>

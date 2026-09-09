@@ -5,7 +5,7 @@ import { Plan } from "./Plan.jsx";
 import { Review } from "./Review.jsx";
 import { Mistakes } from "./Mistakes.jsx";
 import { Insights } from "./Insights.jsx";
-import { Modals } from "./Modals.jsx";
+import { Modals, GoogleIcon } from "./Modals.jsx";
 import { supabaseClient } from "../core/auth.js";
 import { getDueCards } from "../core/planner.js";
 
@@ -74,12 +74,21 @@ function Sidebar({ currentView }) {
         </button>
         
         {!store.currentUser ? (
-          <button className="nav-item button-nav" onClick={() => document.dispatchEvent(new CustomEvent('openAuth'))}>
-            <span>👤</span>Log in to sync
-          </button>
+          <>
+            <button
+              className="nav-item button-nav"
+              style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}
+              onClick={() => supabaseClient.auth.signInWithOAuth({ provider: "google", options: { redirectTo: window.location.origin } })}
+            >
+              <GoogleIcon size={16} /> Sign in with Google
+            </button>
+            <button className="nav-item button-nav" onClick={() => document.dispatchEvent(new CustomEvent('openAuth'))}>
+              <span>👤</span> Log in to sync
+            </button>
+          </>
         ) : (
           <button className="nav-item button-nav" onClick={() => supabaseClient.auth.signOut()}>
-            <span>⎋</span>Log out
+            <span>⎋</span> Log out
           </button>
         )}
         <p>Built for deliberate practice,<br />not perfect streaks.</p>
