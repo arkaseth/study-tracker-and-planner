@@ -11,6 +11,9 @@ export function Plan() {
   if (!exam) return null;
 
   const [bulkHours, setBulkHours] = useState(2);
+  // Drag state: track which task id is being dragged
+  const [draggingId, setDraggingId] = useState(null);
+  const [dragOverDate, setDragOverDate] = useState(null);
 
   const updateAvailability = (day, field, value) => {
     if (!exam.availability) exam.availability = {};
@@ -268,13 +271,39 @@ export function Plan() {
             const isOverdueDay = isPast && ts.some(t => !t.done);
             
             return (
-              <div key={d} className={`schedule-day ${isOverdueDay ? 'schedule-day-overdue' : ''}`}>
+              <div key={d} className={`schedule-day ${isOverdueDay ? 'schedule-day-overdue' : ''} ${dragOverDate === d ? 'drag-over' : ''}`}
+                onDragOver={e => { e.preventDefault(); setDragOverDate(d); }}
+                onDragLeave={e => { if (!e.currentTarget.contains(e.relatedTarget)) setDragOverDate(null); }}
+                onDrop={e => {
+                  e.preventDefault();
+                  setDragOverDate(null);
+                  if (!draggingId || draggingId === d) return;
+                  const task = exam.tasks.find(t => t.id === draggingId);
+                  if (task && task.date !== d) {
+                    task.date = d;
+                    save();
+                    toast(`Moved to ${formatDate(d)}.`);
+                  }
+                  setDraggingId(null);
+                }}
+              >
                 <div className="schedule-date">
                   {formatDate(d)} {isPast && <span className="overdue-pill">overdue</span>}
                 </div>
                 <div className="session-list">
                   {ts.map(t => (
-                    <span key={t.id} className={`session ${isPast && !t.done ? 'session-overdue' : ''}`}>
+                    <span
+                      key={t.id}
+                      className={`session ${isPast && !t.done ? 'session-overdue' : ''} ${draggingId === t.id ? 'dragging' : ''}`}
+                      draggable={!t.done}
+                      onDragStart={e => {
+                        setDraggingId(t.id);
+                        e.dataTransfer.effectAllowed = 'move';
+                        // Firefox requires data to be set
+                        e.dataTransfer.setData('text/plain', t.id);
+                      }}
+                      onDragEnd={() => { setDraggingId(null); setDragOverDate(null); }}
+                    >
                       <span className="tag">{t.type}</span>
                       {t.topic} · {t.duration}m
                       {isPast && !t.done ? (
