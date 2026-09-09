@@ -1,8 +1,12 @@
+import { signal } from "@preact/signals";
 import { STORAGE_KEY } from "../utils/constants.js";
 import { starterData } from "./planner.js";
 import { createDefaultAvailability, availabilityHours } from "./planner.js";
 import { toast } from "../utils/helpers.js";
 import { supabaseClient } from "./auth.js";
+
+// Reactive signal to trigger UI re-renders on save
+export const storeRev = signal(0);
 
 export const store = {
   state: null,
@@ -60,6 +64,7 @@ export function initializeState() {
   
   store.state.timer ||= { focus: 25, break: 5 };
   store.timerRemaining = store.state.timer.focus * 60;
+  storeRev.value++;
 }
 
 export function currentExam() {
@@ -68,6 +73,8 @@ export function currentExam() {
 
 export function save() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(store.state));
+  storeRev.value++; // Notify Preact components to re-render
+  
   if (store.currentUser) {
     clearTimeout(saveTimeout);
     saveTimeout = setTimeout(() => {
@@ -86,7 +93,8 @@ export function save() {
   }
 }
 
-export async function loadFromCloud(renderAllCallback) {
+export async function loadFromCloud() {
+
   if (!store.currentUser) return;
   const { data, error } = await supabaseClient
     .from("study_data")
@@ -139,5 +147,5 @@ export async function loadFromCloud(renderAllCallback) {
         }
       });
   }
-  if (renderAllCallback) renderAllCallback();
+  storeRev.value++; // Notify Preact components
 }
