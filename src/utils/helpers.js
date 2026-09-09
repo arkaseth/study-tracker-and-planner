@@ -24,37 +24,16 @@ export function toast(message) {
 
 /**
  * Shows a custom confirmation dialog modal.
+ * Delegates to window.appConfirm which is set up by Modals.jsx.
+ * Falls back to the native confirm() if the modal system isn't ready yet.
  * @param {string} title
  * @param {string} message
  * @returns {Promise<boolean>}
  */
 export function appConfirm(title, message) {
-  return new Promise((resolve) => {
-    const titleEl = $("#confirm-title");
-    const msgEl = $("#confirm-message");
-    const dialog = $("#confirm-dialog");
-    if (!dialog) return resolve(window.confirm(`${title}\n\n${message}`));
-
-    titleEl.textContent = title;
-    msgEl.textContent = message;
-    dialog.showModal();
-    const ok = $("#confirm-ok"),
-      cancel = $("#confirm-cancel");
-
-    function cleanup() {
-      ok.removeEventListener("click", onOk);
-      cancel.removeEventListener("click", onCancel);
-      dialog.close();
-    }
-    function onOk() {
-      cleanup();
-      resolve(true);
-    }
-    function onCancel() {
-      cleanup();
-      resolve(false);
-    }
-    ok.addEventListener("click", onOk);
-    cancel.addEventListener("click", onCancel);
-  });
+  if (typeof window.appConfirm === "function") {
+    return window.appConfirm(title, message);
+  }
+  // Fallback if Modals haven't mounted yet
+  return Promise.resolve(window.confirm(`${title}\n\n${message}`));
 }
