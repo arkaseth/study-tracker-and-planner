@@ -1,6 +1,6 @@
 <div align="center">
 
-# Estudio
+# Studia
 
 **A calm, local-first study planner built around active recall, spaced repetition, and error-driven practice.**
 
@@ -14,7 +14,7 @@
 
 ## Overview
 
-Estudio is a personal study-planning tool that puts cognitive science before complexity. The core loop is simple:
+Studia is a personal study-planning tool that puts cognitive science before complexity. The core loop is simple:
 
 1. **Plan** — generate a confidence-weighted 14-day schedule from your exam template
 2. **Study** — work sessions with a built-in Pomodoro timer

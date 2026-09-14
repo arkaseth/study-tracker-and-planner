@@ -351,7 +351,7 @@ export function Modals() {
       <dialog ref={authDialog} id="auth-dialog" onCancel={closeModals}>
         <div className="confirm-body" style={{ padding: "28px", width: "380px", maxWidth: "100%", textAlign: "center", margin: "0 auto", position: "relative" }}>
           <button className="modal-close" type="button" onClick={closeModals}>×</button>
-          <h2 className="modal-title" style={{ marginBottom: "8px" }}>Welcome to Estudio!</h2>
+          <h2 className="modal-title" style={{ marginBottom: "8px" }}>Welcome to Studia!</h2>
           <p className="modal-copy" style={{ marginBottom: "20px" }}>Log in to sync your study data.</p>
           
           <button
@@ -520,7 +520,7 @@ export function Modals() {
                   const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
                   const url = URL.createObjectURL(blob);
                   const a = document.createElement("a");
-                  a.href = url; a.download = "estudio-backup.json"; a.click();
+                  a.href = url; a.download = "studia-backup.json"; a.click();
                   URL.revokeObjectURL(url);
                 }}>Export JSON</button>
                 <label className="secondary-button" style={{ width: "100%", fontSize: "11px", cursor: "pointer", justifyContent: "center" }}>
@@ -553,7 +553,7 @@ export function Modals() {
                 const exam = currentExam();
                 const futureTasks = exam.tasks.filter(t => t.date >= iso());
                 if (!futureTasks.length && !exam.examDate) { toast("Nothing to export."); return; }
-                let ics = "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Estudio//Study Planner//EN\r\n";
+                let ics = "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//Studia//Study Planner//EN\r\n";
                 if (exam.examDate) {
                   const s = exam.examDate.replace(/-/g, ""), e2 = addDays(exam.examDate, 1).toISOString().slice(0,10).replace(/-/g,"");
                   ics += `BEGIN:VEVENT\r\nDTSTART;VALUE=DATE:${s}\r\nDTEND;VALUE=DATE:${e2}\r\nSUMMARY:🎯 ${exam.name} - EXAM DAY\r\nDESCRIPTION:Good luck!\r\nEND:VEVENT\r\n`;
@@ -565,7 +565,7 @@ export function Modals() {
                 ics += "END:VCALENDAR";
                 const blob = new Blob([ics], { type: "text/calendar" });
                 const url = URL.createObjectURL(blob);
-                const a = document.createElement("a"); a.href = url; a.download = "estudio-schedule.ics"; a.click();
+                const a = document.createElement("a"); a.href = url; a.download = "studia-schedule.ics"; a.click();
                 URL.revokeObjectURL(url);
               }}>Export Schedule (.ics)</button>
 

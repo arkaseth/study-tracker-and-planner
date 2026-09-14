@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <defs>
+    <linearGradient id="studia-pastel" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ddcffc"/>
+      <stop offset="50%" stop-color="#cbd5fe"/>
+      <stop offset="100%" stop-color="#b8daf8"/>
+    </linearGradient>
+    <linearGradient id="studia-border" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="rgba(255,255,255,0.7)"/>
+      <stop offset="100%" stop-color="rgba(255,255,255,0.25)"/>
+    </linearGradient>
+    <filter id="subtle-shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="1" stdDeviation="0.8" flood-color="#1e1530" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+  
+  <!-- Base Squircle with Calm Pastel Gradient -->
+  <rect width="32" height="32" rx="8" fill="url(#studia-pastel)"/>
+  
+  <!-- Outer Light Reflection Stroke -->
+  <rect x="0.75" y="0.75" width="30.5" height="30.5" rx="7.25" fill="none" stroke="url(#studia-border)" stroke-width="1.2"/>
+  
+  <!-- Inner Academic Cartouche Crest -->
+  <rect x="3.5" y="3.5" width="25" height="25" rx="5.5" fill="none" stroke="#231934" stroke-opacity="0.18" stroke-width="0.8"/>
+  <rect x="4.75" y="4.75" width="22.5" height="22.5" rx="4.25" fill="none" stroke="#ffffff" stroke-opacity="0.4" stroke-width="0.6"/>
+  
+  <!-- Neoclassical Serif 'S' -->
+  <text x="16" y="22.5" font-family="'Playfair Display', Georgia, 'Times New Roman', serif" font-size="19" font-weight="700" text-anchor="middle" fill="#231934" filter="url(#subtle-shadow)" letter-spacing="-0.3">S</text>
+</svg>
