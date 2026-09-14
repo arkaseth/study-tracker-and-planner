@@ -16,22 +16,7 @@ function Sidebar({ currentView }) {
   return (
     <aside className="sidebar">
       <a className="brand" href="#dashboard" aria-label="Studia home">
-        <span className="brand-mark" aria-hidden="true">
-          <svg viewBox="0 0 32 32" width="32" height="32" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <linearGradient id="studia-brand-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#ddcffc" />
-                <stop offset="50%" stopColor="#cbd5fe" />
-                <stop offset="100%" stopColor="#b8daf8" />
-              </linearGradient>
-            </defs>
-            <rect width="32" height="32" rx="8" fill="url(#studia-brand-grad)" />
-            <rect x="0.75" y="0.75" width="30.5" height="30.5" rx="7.25" stroke="rgba(255,255,255,0.7)" strokeWidth="1.2" />
-            <rect x="3.5" y="3.5" width="25" height="25" rx="5.5" stroke="#231934" strokeOpacity="0.2" strokeWidth="0.8" />
-            <rect x="4.75" y="4.75" width="22.5" height="22.5" rx="4.25" stroke="#ffffff" strokeOpacity="0.45" strokeWidth="0.6" />
-            <text x="16" y="22.5" fontFamily="'Playfair Display', Georgia, serif" fontSize="19" fontWeight="700" textAnchor="middle" fill="#231934" letterSpacing="-0.3">S</text>
-          </svg>
-        </span>
+        <span className="brand-mark" aria-hidden="true">S</span>
         <span>studia</span>
       </a>
       <div className="exam-switcher">
