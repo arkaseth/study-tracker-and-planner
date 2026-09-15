@@ -660,46 +660,70 @@ main {
   text-align: center;
 }
 .flashcard {
-  height: 290px;
+  min-height: 280px;
+  height: auto;
+  max-height: 480px;
   text-align: left;
   margin: 11px 0 17px;
   border: 1px solid var(--line);
   border-radius: 12px;
   background: linear-gradient(135deg, var(--panel), var(--panel2));
   box-shadow: var(--shadow);
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 .flashcard button {
   position: relative;
   width: 100%;
-  height: 100%;
-  padding: 32px;
+  min-height: 280px;
+  height: auto;
+  padding: 28px 28px 40px;
   border: 0;
   background: transparent;
   text-align: left;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
+  box-sizing: border-box;
+  cursor: pointer;
 }
 .card-label {
   font: 10px "DM Mono";
   letter-spacing: 1px;
   color: var(--accent);
+  display: block;
+  margin-bottom: 12px;
 }
 .flashcard h2 {
-  font: 600 29px/1.2 "Playfair Display";
-  max-width: 530px;
-  margin: 30px 0 0;
+  font: 600 clamp(17px, 2.4vw, 24px) / 1.38 "Playfair Display";
+  max-width: 100%;
+  margin: 0;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  white-space: pre-wrap;
+  color: var(--ink);
 }
 .flashcard p {
-  font-size: 16px;
-  line-height: 1.55;
-  max-width: 520px;
-  margin: 25px 0 0;
+  font-size: 15px;
+  line-height: 1.6;
+  max-width: 100%;
+  margin: 18px 0 0;
   color: var(--ink);
+  border-top: 1px dashed var(--line);
+  padding-top: 14px;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  white-space: pre-wrap;
 }
 .flip-hint {
   position: absolute;
-  right: 24px;
-  bottom: 20px;
+  right: 20px;
+  bottom: 16px;
   color: var(--muted);
-  font-size: 18px;
+  font-size: 16px;
+  pointer-events: none;
 }
 .review-actions {
   display: grid;
@@ -781,7 +805,9 @@ main {
   padding: 4px 6px;
   border-radius: 10px;
   white-space: nowrap;
+  flex-shrink: 0;
 }
+.card-row > div:first-child,
 .mistake-row .mistake-info {
   flex: 1;
   min-width: 0;
