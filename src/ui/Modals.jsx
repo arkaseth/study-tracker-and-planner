@@ -149,8 +149,9 @@ export function Modals() {
   
   // Data states for specific modals
   const [confirmData, setConfirmData] = useState({ title: '', message: '' });
-  const [formData, setFormData] = useState({ type: '', date: '', task: null });
+  const [formData, setFormData] = useState({ type: '', date: '', task: null, initialText: '' });
   const [ocrState, setOcrState] = useState({ phase: 'upload', image: null, progress: 0, status: '', text: '' });
+  const [ocrDragOver, setOcrDragOver] = useState(false);
   const [conceptTopicId, setConceptTopicId] = useState(null);
   const [customTopics, setCustomTopics] = useState(null); // topics from custom JSON import
   const [authError, setAuthError] = useState('');
@@ -162,6 +163,7 @@ export function Modals() {
   const formDialog = useRef(null);
   const confirmDialog = useRef(null);
   const ocrDialog = useRef(null);
+  const ocrFileRef = useRef(null);
   const conceptsDialog = useRef(null);
 
   // Sync state to <dialog> elements natively
@@ -173,6 +175,20 @@ export function Modals() {
     if (activeModal === 'confirm') confirmDialog.current?.showModal(); else confirmDialog.current?.close();
     if (activeModal === 'ocr') ocrDialog.current?.showModal(); else ocrDialog.current?.close();
     if (activeModal === 'concepts') conceptsDialog.current?.showModal(); else conceptsDialog.current?.close();
+  }, [activeModal]);
+
+  // Paste handler for OCR capture
+  useEffect(() => {
+    const handlePaste = (e) => {
+      if (activeModal !== 'ocr') return;
+      const item = [...(e.clipboardData?.items || [])].find(i => i.type.startsWith('image/'));
+      if (item) {
+        const file = item.getAsFile();
+        if (file) handleOcrImage(file);
+      }
+    };
+    document.addEventListener('paste', handlePaste);
+    return () => document.removeEventListener('paste', handlePaste);
   }, [activeModal]);
 
   // Event Listeners
@@ -191,14 +207,20 @@ export function Modals() {
     const handleOpenModal = (e) => {
       const detail = e.detail;
       if (typeof detail === 'string') {
-        setFormData({ type: detail, date: iso(), task: null });
+        setFormData({ type: detail, date: iso(), task: null, initialText: '' });
       } else {
-        setFormData({ type: detail.type, date: detail.date || iso(), task: detail.taskId ? currentExam()?.tasks.find(t => t.id === detail.taskId) : null });
+        setFormData({
+          type: detail.type,
+          date: detail.date || iso(),
+          task: detail.taskId ? currentExam()?.tasks.find(t => t.id === detail.taskId) : null,
+          initialText: detail.initialText || ''
+        });
       }
       setActiveModal('form');
     };
     const handleOpenOCR = () => {
       setOcrState({ phase: 'upload', image: null, progress: 0, status: '', text: '' });
+      setOcrDragOver(false);
       setActiveModal('ocr');
     };
     const handleOpenConcepts = (e) => {
@@ -279,6 +301,64 @@ export function Modals() {
     } else {
       setAuthMessage('Signup successful! Check your email confirmation link, then log in.');
     }
+  };
+
+  const handleOcrImage = (file) => {
+    if (!file || !file.type.startsWith('image/')) {
+      toast('Please choose a valid image file.');
+      return;
+    }
+    const url = URL.createObjectURL(file);
+    setOcrState({
+      phase: 'processing',
+      image: url,
+      progress: 8,
+      status: 'Initializing OCR engine...',
+      text: ''
+    });
+
+    if (!window.Tesseract) {
+      setOcrState(prev => ({
+        ...prev,
+        phase: 'upload',
+        status: 'OCR library (Tesseract.js) is not loaded. Please check your internet connection.'
+      }));
+      toast('OCR library not available.');
+      return;
+    }
+
+    window.Tesseract.recognize(file, 'eng', {
+      logger: (m) => {
+        if (m.status === 'recognizing text') {
+          const pct = Math.max(10, Math.round(m.progress * 100));
+          setOcrState(prev => ({
+            ...prev,
+            progress: pct,
+            status: `Extracting text: ${pct}%`
+          }));
+        } else if (m.status) {
+          setOcrState(prev => ({ ...prev, status: m.status }));
+        }
+      }
+    })
+      .then(({ data: { text } }) => {
+        setOcrState(prev => ({
+          ...prev,
+          phase: 'result',
+          progress: 100,
+          status: '',
+          text: (text || '').trim()
+        }));
+      })
+      .catch((err) => {
+        console.error('OCR Recognition error:', err);
+        setOcrState(prev => ({
+          ...prev,
+          phase: 'upload',
+          status: 'Failed to extract text from this image. Please try another image.'
+        }));
+        toast('OCR failed to read image.');
+      });
   };
 
   const handleFormSubmit = (e) => {
@@ -462,7 +542,7 @@ export function Modals() {
               )}
               {formData.type === 'card' && (
                 <>
-                  <label className="modal-field">Prompt<input name="front" required /></label>
+                  <label className="modal-field">Prompt<input name="front" defaultValue={formData.initialText || ''} required /></label>
                   <label className="modal-field">Answer<textarea name="back" required></textarea></label>
                   <label className="modal-field">Topic<input name="topic" list="topics-list" required /></label>
                 </>
@@ -470,7 +550,7 @@ export function Modals() {
               {formData.type === 'mistake' && (
                 <>
                   <label className="modal-field">Topic<input name="topic" list="topics-list" required /></label>
-                  <label className="modal-field">Question / situation<textarea name="question" required></textarea></label>
+                  <label className="modal-field">Question / situation<textarea name="question" defaultValue={formData.initialText || ''} required></textarea></label>
                   <label className="modal-field">Correct approach<textarea name="correct" required></textarea></label>
                   <label className="modal-field">What went wrong?<textarea name="why" required></textarea></label>
                 </>
@@ -634,13 +714,118 @@ export function Modals() {
       </dialog>
 
       <dialog ref={ocrDialog} id="ocr-dialog" onCancel={closeModals}>
-        <div className="confirm-body" style={{ padding: "28px", width: "480px", maxWidth: "100%", position: "relative" }}>
+        <div className="confirm-body" style={{ width: "480px", maxWidth: "100%", padding: "28px", position: "relative" }}>
           <button className="modal-close" type="button" onClick={closeModals}>×</button>
           <h2 className="modal-title">Capture Question</h2>
-          <p className="modal-copy">OCR capabilities migrated to Preact.</p>
-          <div className="modal-actions" style={{ marginTop: "24px" }}>
-            <button type="button" className="secondary-button" onClick={closeModals}>Close</button>
-          </div>
+          <p className="modal-copy">Paste an image (Ctrl+V) or click to upload.</p>
+
+          <input
+            type="file"
+            ref={ocrFileRef}
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => {
+              if (e.target.files?.[0]) handleOcrImage(e.target.files[0]);
+              e.target.value = '';
+            }}
+          />
+
+          {ocrState.phase !== 'result' ? (
+            <div
+              className={`ocr-dropzone ${ocrDragOver ? 'drag-over' : ''}`}
+              onClick={() => ocrFileRef.current?.click()}
+              onDragOver={(e) => { e.preventDefault(); setOcrDragOver(true); }}
+              onDragLeave={() => setOcrDragOver(false)}
+              onDrop={(e) => {
+                e.preventDefault();
+                setOcrDragOver(false);
+                if (e.dataTransfer.files?.[0]) handleOcrImage(e.dataTransfer.files[0]);
+              }}
+            >
+              {ocrState.image ? (
+                <img src={ocrState.image} className="ocr-preview" alt="Question capture" />
+              ) : (
+                <div style={{ padding: "10px 0" }}>
+                  <div style={{ fontSize: "30px", marginBottom: "8px" }}>📷</div>
+                  <p style={{ margin: 0, fontWeight: 500 }}>Click to browse or drop an image</p>
+                  <p className="muted" style={{ fontSize: "11.5px", marginTop: "4px" }}>Screenshots, textbook problems, past exams</p>
+                </div>
+              )}
+
+              {ocrState.phase === 'processing' && (
+                <div style={{ marginTop: "14px" }}>
+                  <div className="timer-progress" style={{ width: "100%", marginTop: "10px" }}>
+                    <span style={{ width: `${ocrState.progress}%` }}></span>
+                  </div>
+                  <p className="muted" style={{ fontSize: "11.5px", marginTop: "6px" }}>
+                    {ocrState.status || "Extracting text..."}
+                  </p>
+                </div>
+              )}
+
+              {ocrState.phase === 'upload' && ocrState.status && (
+                <p style={{ color: "var(--coral)", fontSize: "12px", marginTop: "10px" }}>
+                  {ocrState.status}
+                </p>
+              )}
+            </div>
+          ) : (
+            <div style={{ marginTop: "15px" }}>
+              {ocrState.image && (
+                <img src={ocrState.image} className="ocr-preview" alt="Extracted source" style={{ maxHeight: "130px" }} />
+              )}
+              <label className="modal-field">
+                Extracted Text (Edit if needed)
+                <textarea
+                  style={{ minHeight: "120px", marginTop: "6px" }}
+                  value={ocrState.text}
+                  onInput={(e) => setOcrState(prev => ({ ...prev, text: e.target.value }))}
+                />
+              </label>
+
+              <div className="modal-actions" style={{ marginTop: "16px", justifyContent: "space-between" }}>
+                <button
+                  type="button"
+                  className="secondary-button"
+                  onClick={() => setOcrState({ phase: 'upload', image: null, progress: 0, status: '', text: '' })}
+                >
+                  Capture another
+                </button>
+                <div style={{ display: "flex", gap: "8px" }}>
+                  <button
+                    type="button"
+                    className="secondary-button"
+                    onClick={() => {
+                      const text = ocrState.text;
+                      closeModals();
+                      document.dispatchEvent(new CustomEvent('openModal', { detail: { type: 'card', initialText: text } }));
+                    }}
+                  >
+                    Save to Flashcard
+                  </button>
+                  <button
+                    type="button"
+                    className="primary-button"
+                    onClick={() => {
+                      const text = ocrState.text;
+                      closeModals();
+                      document.dispatchEvent(new CustomEvent('openModal', { detail: { type: 'mistake', initialText: text } }));
+                    }}
+                  >
+                    Save to Mistake Book
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {ocrState.phase !== 'result' && (
+            <div className="modal-actions" style={{ marginTop: "16px" }}>
+              <button type="button" className="secondary-button" onClick={closeModals} style={{ marginLeft: "auto" }}>
+                Cancel
+              </button>
+            </div>
+          )}
         </div>
       </dialog>
 
