@@ -742,26 +742,37 @@ main {
 .card-list,
 .mistake-list {
   border-top: 1px solid var(--line);
+  width: 100%;
 }
 .card-row,
 .mistake-row {
-  padding: 14px 2px;
+  padding: 16px 4px;
   border-bottom: 1px solid var(--line);
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  gap: 15px;
+  gap: 16px;
+  width: 100%;
+  box-sizing: border-box;
 }
 .card-row b,
 .mistake-row b {
   display: block;
-  font-size: 13px;
+  font-size: 13.5px;
+  line-height: 1.5;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  white-space: pre-wrap;
 }
 .card-row p,
 .mistake-row p {
-  margin: 5px 0 0;
+  margin: 6px 0 0;
   font-size: 12px;
+  line-height: 1.55;
   color: var(--muted);
+  overflow-wrap: break-word;
+  word-break: break-word;
+  white-space: pre-wrap;
 }
 .pill {
   font: 10px "DM Mono";
@@ -771,11 +782,16 @@ main {
   border-radius: 10px;
   white-space: nowrap;
 }
-.mistake-row {
-  align-items: start;
-}
 .mistake-row .mistake-info {
-  max-width: 75%;
+  flex: 1;
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+.mistake-row .icon-delete {
+  flex-shrink: 0;
+  margin-top: 2px;
 }
 .mistake-row .pill {
   display: inline-block;
@@ -783,6 +799,11 @@ main {
 }
 .mistake-row .why {
   color: var(--coral);
+}
+.mistake-critique {
+  overflow-wrap: break-word;
+  word-break: break-word;
+  white-space: pre-wrap;
 }
 .insights-grid {
   display: grid;

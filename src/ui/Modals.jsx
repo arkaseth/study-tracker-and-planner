@@ -756,7 +756,7 @@ export function Modals() {
       </dialog>
 
       <dialog ref={ocrDialog} id="ocr-dialog" onCancel={closeModals}>
-        <div className="confirm-body" style={{ width: "480px", maxWidth: "100%", padding: "28px", position: "relative" }}>
+        <div className="confirm-body" style={{ width: "100%", maxWidth: "100%", padding: "28px", boxSizing: "border-box", position: "relative" }}>
           <button className="modal-close" type="button" onClick={closeModals}>×</button>
           <h2 className="modal-title">Capture Question</h2>
           <p className="modal-copy">Paste an image (Ctrl+V) or click to upload.</p>
@@ -819,7 +819,7 @@ export function Modals() {
               <label className="modal-field">
                 Extracted Text (Edit if needed)
                 <textarea
-                  style={{ minHeight: "120px", marginTop: "6px" }}
+                  style={{ minHeight: "120px", marginTop: "6px", width: "100%", boxSizing: "border-box" }}
                   value={ocrState.text}
                   onInput={(e) => setOcrState(prev => ({ ...prev, text: e.target.value }))}
                 />

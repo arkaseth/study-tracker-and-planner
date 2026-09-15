@@ -183,9 +183,14 @@
   border: 1px solid var(--line);
   background: var(--panel);
   color: var(--ink);
-  border-radius: 10px;
+  border-radius: 12px;
   padding: 0;
+  width: min(720px, calc(100vw - 32px));
+  max-width: calc(100vw - 32px);
+  max-height: 90vh;
   box-shadow: 0 25px 80px #0009;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 #ocr-dialog::backdrop {
   background: #0009;
@@ -199,7 +204,9 @@
   cursor: pointer;
   background: var(--canvas);
   transition: 0.2s;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
+  width: 100%;
+  box-sizing: border-box;
 }
 .ocr-dropzone:hover,
 .ocr-dropzone.drag-over {
@@ -207,11 +214,14 @@
   background: color-mix(in srgb, var(--accent) 6%, var(--canvas));
 }
 .ocr-preview {
-  max-height: 200px;
-  width: 100%;
+  max-height: 320px;
+  max-width: 100%;
+  width: auto;
+  height: auto;
   object-fit: contain;
   border-radius: 6px;
-  margin-bottom: 10px;
+  margin: 0 auto 12px auto;
+  display: block;
 }
 
 .day-clear-btn {
