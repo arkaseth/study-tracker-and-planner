@@ -832,11 +832,97 @@ export function Modals() {
       <dialog ref={conceptsDialog} id="concepts-dialog" onCancel={closeModals}>
         <div className="confirm-body" style={{ padding: "28px", width: "480px", maxWidth: "100%", position: "relative" }}>
           <button className="modal-close" type="button" onClick={closeModals}>×</button>
-          <h2 className="modal-title">Concepts</h2>
-          <p className="modal-copy">Manage granular concepts here.</p>
-          <div className="modal-actions" style={{ marginTop: "24px" }}>
-            <button type="button" className="secondary-button" onClick={closeModals}>Close</button>
-          </div>
+          {(() => {
+            const topic = currentExam()?.topics.find(t => t.id === conceptTopicId);
+            if (!topic) {
+              return (
+                <div>
+                  <h2 className="modal-title">Concepts</h2>
+                  <p className="modal-copy">Topic not found.</p>
+                  <div className="modal-actions" style={{ marginTop: "20px" }}>
+                    <button type="button" className="secondary-button" onClick={closeModals}>Close</button>
+                  </div>
+                </div>
+              );
+            }
+
+            const concepts = Array.isArray(topic.concepts) ? topic.concepts : [];
+
+            return (
+              <div>
+                <p className="eyebrow" style={{ color: "var(--accent)" }}>TOPIC BREAKDOWN</p>
+                <h2 className="modal-title" style={{ marginBottom: "6px" }}>{topic.name}</h2>
+                <p className="modal-copy" style={{ marginBottom: "16px" }}>
+                  Granular concepts help you break topics down into focused checkpoints.
+                </p>
+
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    const input = e.target.conceptName;
+                    const val = input.value.trim();
+                    if (!val) return;
+                    if (!topic.concepts) topic.concepts = [];
+                    topic.concepts.push(val);
+                    save();
+                    input.value = "";
+                  }}
+                  style={{ display: "flex", gap: "8px", marginBottom: "16px" }}
+                >
+                  <input
+                    name="conceptName"
+                    placeholder="Add a concept (e.g. Bayes Theorem)..."
+                    style={{ flex: 1 }}
+                    required
+                  />
+                  <button type="submit" className="primary-button" style={{ padding: "6px 14px" }}>
+                    Add
+                  </button>
+                </form>
+
+                <div style={{ maxHeight: "220px", overflowY: "auto", display: "flex", flexDirection: "column", gap: "6px", marginBottom: "20px" }}>
+                  {concepts.length > 0 ? concepts.map((c, idx) => (
+                    <div
+                      key={idx}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        padding: "8px 12px",
+                        background: "var(--panel2)",
+                        border: "1px solid var(--line)",
+                        borderRadius: "6px",
+                        fontSize: "13px"
+                      }}
+                    >
+                      <span>{typeof c === "string" ? c : c.name || "Concept"}</span>
+                      <button
+                        type="button"
+                        className="icon-delete"
+                        title="Delete concept"
+                        onClick={() => {
+                          topic.concepts = concepts.filter((_, i) => i !== idx);
+                          save();
+                        }}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  )) : (
+                    <p className="muted" style={{ fontSize: "12px", textAlign: "center", padding: "16px 0" }}>
+                      No concepts added yet. Add key concepts to track mastery.
+                    </p>
+                  )}
+                </div>
+
+                <div className="modal-actions">
+                  <button type="button" className="secondary-button" onClick={closeModals} style={{ marginLeft: "auto" }}>
+                    Done
+                  </button>
+                </div>
+              </div>
+            );
+          })()}
         </div>
       </dialog>
     </>

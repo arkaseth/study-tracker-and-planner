@@ -300,7 +300,13 @@ export function Plan() {
                   value={t.confidence}
                   onChange={e => updateTopicConfidence(t.id, e.target.value)}
                 />
-                <button className="secondary-button" style={{ padding: "4px 10px", minHeight: "30px", fontSize: "11px" }}>
+                <button
+                  type="button"
+                  className="secondary-button"
+                  style={{ padding: "4px 10px", minHeight: "30px", fontSize: "11px", cursor: "pointer" }}
+                  title="Manage sub-concepts"
+                  onClick={() => document.dispatchEvent(new CustomEvent('openConcepts', { detail: t.id }))}
+                >
                   {(t.concepts || []).length} concepts
                 </button>
                 <button className="icon-delete" onClick={() => deleteTopic(t.id)}>×</button>
