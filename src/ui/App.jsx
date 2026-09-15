@@ -21,19 +21,31 @@ function Sidebar({ currentView }) {
       </a>
       <div className="exam-switcher">
         <label htmlFor="exam-select">CURRENT FOCUS</label>
-        <select 
-          id="exam-select" 
-          aria-label="Current study plan"
-          value={store.state?.activeExamId}
-          onChange={(e) => {
-            store.state.activeExamId = e.target.value;
-            save();
-          }}
-        >
-          {store.state?.exams.map(e => (
-            <option key={e.id} value={e.id}>{e.name}</option>
-          ))}
-        </select>
+        <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
+          <select 
+            id="exam-select" 
+            aria-label="Current study plan"
+            value={store.state?.activeExamId}
+            style={{ flex: 1 }}
+            onChange={(e) => {
+              store.state.activeExamId = e.target.value;
+              save();
+            }}
+          >
+            {store.state?.exams.map(e => (
+              <option key={e.id} value={e.id}>{e.name}</option>
+            ))}
+          </select>
+          <button
+            type="button"
+            className="icon-button"
+            style={{ width: "28px", height: "28px", minWidth: "28px", fontSize: "12px", border: "1px solid var(--line)" }}
+            title="Edit current study plan"
+            onClick={() => document.dispatchEvent(new CustomEvent('openModal', { detail: { type: 'edit-exam' } }))}
+          >
+            ✎
+          </button>
+        </div>
         <button 
           className="text-button" 
           id="new-exam-button"

@@ -385,6 +385,12 @@ export function Modals() {
       store.state.activeExamId = store.state.exams.at(-1).id;
       toast("Study plan created.");
     }
+
+    if (type === "edit-exam") {
+      if (data.name?.trim()) exam.name = data.name.trim();
+      if (data.examDate) exam.examDate = data.examDate;
+      toast("Study plan updated.");
+    }
     
     if (type === "topic") {
       exam.topics.push({ id: uid(), name: data.topic.trim(), confidence: 1, completed: 0 });
@@ -512,12 +518,46 @@ export function Modals() {
           <button className="modal-close" type="button" onClick={closeModals}>×</button>
           <div id="modal-content">
             <h2 className="modal-title">
-              {formData.task ? "Edit a study session" : { exam: "Create a study plan", topic: "Add a topic", task: "Add a study session", card: "Create a flashcard", mistake: "Log a learning moment" }[formData.type]}
+              {formData.task ? "Edit a study session" : { exam: "Create a study plan", "edit-exam": "Edit study plan", topic: "Add a topic", task: "Add a study session", card: "Create a flashcard", mistake: "Log a learning moment" }[formData.type]}
             </h2>
             <p className="modal-copy">
-              {formData.type === "mistake" ? "This will also create a review card for the correct approach." : "Keep it lightweight - you can refine it later."}
+              {formData.type === "mistake" ? "This will also create a review card for the correct approach." : formData.type === "edit-exam" ? "Update plan name or target exam date." : "Keep it lightweight - you can refine it later."}
             </p>
             <div className="modal-fields">
+              {formData.type === 'edit-exam' && (
+                <>
+                  <label className="modal-field">Plan name<input name="name" defaultValue={currentExam()?.name} required /></label>
+                  <label className="modal-field">Exam date<input name="examDate" type="date" defaultValue={currentExam()?.examDate} required /></label>
+                  <div style={{ marginTop: "20px", paddingTop: "14px", borderTop: "1px solid var(--line)" }}>
+                    <p className="muted" style={{ fontSize: "11px", marginBottom: "8px" }}>Danger Zone</p>
+                    <button
+                      type="button"
+                      className="secondary-button"
+                      style={{ width: "100%", color: "var(--danger)", borderColor: "var(--danger)", fontSize: "12px" }}
+                      onClick={async () => {
+                        const exams = store.state?.exams || [];
+                        if (exams.length <= 1) {
+                          toast("You must have at least one study plan.");
+                          return;
+                        }
+                        const cur = currentExam();
+                        const ok = await appConfirm(
+                          "Delete study plan?",
+                          `Permanently delete "${cur?.name}" and all its topics, schedule tasks, flashcards, and mistakes?`
+                        );
+                        if (!ok) return;
+                        store.state.exams = exams.filter(e => e.id !== cur.id);
+                        store.state.activeExamId = store.state.exams[0].id;
+                        save();
+                        closeModals();
+                        toast("Study plan deleted.");
+                      }}
+                    >
+                      Delete this study plan
+                    </button>
+                  </div>
+                </>
+              )}
               {formData.type === 'exam' && (
                 <>
                   <label className="modal-field">Plan name<input name="name" placeholder="e.g. CFA Level I" required /></label>
@@ -561,7 +601,9 @@ export function Modals() {
             </div>
             <div className="modal-actions">
               <button type="button" className="secondary-button" onClick={closeModals}>Cancel</button>
-              <button type="submit" className="primary-button">{formData.task ? "Update session" : "Save"}</button>
+              <button type="submit" className="primary-button">
+                {formData.task ? "Update session" : formData.type === "edit-exam" ? "Update plan" : "Save"}
+              </button>
             </div>
           </div>
         </form>
