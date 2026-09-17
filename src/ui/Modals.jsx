@@ -6,6 +6,7 @@ import { templates, isLocal, STORAGE_KEY, CUSTOM_TEMPLATE } from "../utils/const
 import { askAI } from "../api/ai.js";
 import { supabaseClient } from "../core/auth.js";
 import { createDefaultAvailability } from "../core/planner.js";
+import { isPwaInstallable, promptPwaInstall } from "../core/pwa.js";
 
 // Global confirm function implementation
 let confirmResolve = null;
@@ -725,6 +726,18 @@ export function Modals() {
           <button className="modal-close" type="button" onClick={closeModals}>×</button>
           <h2 className="modal-title" style={{ marginBottom: "16px" }}>Menu</h2>
           <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+            {isPwaInstallable() && (
+              <button
+                className="secondary-button"
+                style={{ color: "var(--accent)", borderColor: "var(--accent)" }}
+                onClick={() => {
+                  closeModals();
+                  promptPwaInstall();
+                }}
+              >
+                <span>📲</span> Install app
+              </button>
+            )}
             <button className="secondary-button" onClick={() => { closeModals(); document.dispatchEvent(new CustomEvent('openSettings')); }}>Settings</button>
             {!store.currentUser ? (
               <>

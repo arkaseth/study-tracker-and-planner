@@ -8,10 +8,18 @@ import { Insights } from "./Insights.jsx";
 import { Modals, GoogleIcon } from "./Modals.jsx";
 import { supabaseClient } from "../core/auth.js";
 import { getDueCards } from "../core/planner.js";
+import { isPwaInstallable, promptPwaInstall } from "../core/pwa.js";
 
 function Sidebar({ currentView }) {
   const exam = currentExam();
   const due = exam ? getDueCards(exam).length : 0;
+  const [canInstall, setCanInstall] = useState(isPwaInstallable());
+
+  useEffect(() => {
+    const onInstallable = (e) => setCanInstall(Boolean(e.detail));
+    window.addEventListener("pwa-installable", onInstallable);
+    return () => window.removeEventListener("pwa-installable", onInstallable);
+  }, []);
   
   return (
     <aside className="sidebar">
@@ -86,6 +94,11 @@ function Sidebar({ currentView }) {
           <span>⚙️</span>Settings
         </button>
         
+        {canInstall && (
+          <button className="nav-item button-nav" onClick={promptPwaInstall} style={{ color: "var(--accent)" }}>
+            <span>📲</span> Install app
+          </button>
+        )}
         {!store.currentUser ? (
           <>
             <button
@@ -111,6 +124,19 @@ function Sidebar({ currentView }) {
 }
 
 function Topbar() {
+  const [online, setOnline] = useState(typeof navigator !== 'undefined' ? navigator.onLine : true);
+
+  useEffect(() => {
+    const handleOnline = () => setOnline(true);
+    const handleOffline = () => setOnline(false);
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
   const dateStr = new Intl.DateTimeFormat("en", {
     weekday: "long",
     month: "long",
@@ -119,7 +145,14 @@ function Topbar() {
 
   return (
     <header className="topbar">
-      <div className="eyebrow">{dateStr}</div>
+      <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+        <div className="eyebrow">{dateStr}</div>
+        {!online && (
+          <span className="pill" style={{ color: "var(--coral)", borderColor: "var(--coral)", fontSize: "9.5px", padding: "2px 6px" }}>
+            offline
+          </span>
+        )}
+      </div>
       <div className="top-actions">
         <button
           className="icon-button"
