@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
   <defs>
     <linearGradient id="studia-pastel" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#ddcffc"/>
@@ -6,24 +6,24 @@
       <stop offset="100%" stop-color="#b8daf8"/>
     </linearGradient>
     <linearGradient id="studia-border" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="rgba(255,255,255,0.7)"/>
-      <stop offset="100%" stop-color="rgba(255,255,255,0.25)"/>
+      <stop offset="0%" stop-color="rgba(255,255,255,0.85)"/>
+      <stop offset="100%" stop-color="rgba(255,255,255,0.2)"/>
     </linearGradient>
     <filter id="subtle-shadow" x="-10%" y="-10%" width="120%" height="120%">
-      <feDropShadow dx="0" dy="1" stdDeviation="0.8" flood-color="#1e1530" flood-opacity="0.12"/>
+      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#1e1530" flood-opacity="0.14"/>
     </filter>
   </defs>
-  
-  <!-- Base Squircle with Calm Pastel Gradient -->
-  <rect width="32" height="32" rx="8" fill="url(#studia-pastel)"/>
-  
+
+  <!-- Continuous Curvature Mathematical Squircle -->
+  <path d="M 256 12 C 378 12 438 12 474 48 C 500 74 500 134 500 256 C 500 378 500 438 474 474 C 438 500 378 500 256 500 C 134 500 74 500 48 474 C 12 438 12 378 12 256 C 12 134 12 74 48 48 C 74 12 134 12 256 12 Z" fill="url(#studia-pastel)"/>
+
   <!-- Outer Light Reflection Stroke -->
-  <rect x="0.75" y="0.75" width="30.5" height="30.5" rx="7.25" fill="none" stroke="url(#studia-border)" stroke-width="1.2"/>
-  
-  <!-- Inner Academic Cartouche Crest -->
-  <rect x="3.5" y="3.5" width="25" height="25" rx="5.5" fill="none" stroke="#231934" stroke-opacity="0.18" stroke-width="0.8"/>
-  <rect x="4.75" y="4.75" width="22.5" height="22.5" rx="4.25" fill="none" stroke="#ffffff" stroke-opacity="0.4" stroke-width="0.6"/>
-  
+  <path d="M 256 18 C 375 18 434 18 469 53 C 494 78 494 137 494 256 C 494 375 494 434 469 469 C 434 494 375 494 256 494 C 137 494 78 494 53 469 C 18 434 18 375 18 256 C 18 137 18 78 53 53 C 78 18 137 18 256 18 Z" fill="none" stroke="url(#studia-border)" stroke-width="12"/>
+
+  <!-- Inner Academic Cartouche Crest (Nested Squircle) -->
+  <path d="M 256 52 C 356 52 406 52 436 82 C 460 106 460 156 460 256 C 460 356 460 406 436 436 C 406 460 356 460 256 460 C 156 460 106 460 82 436 C 52 406 52 356 52 256 C 52 156 52 106 82 82 C 106 52 156 52 256 52 Z" fill="none" stroke="#231934" stroke-opacity="0.18" stroke-width="8"/>
+  <path d="M 256 70 C 350 70 398 70 424 96 C 442 114 442 162 442 256 C 442 350 442 398 424 424 C 398 442 350 442 256 442 C 162 442 114 442 96 424 C 70 398 70 350 70 256 C 70 162 70 114 96 96 C 114 70 162 70 256 70 Z" fill="none" stroke="#ffffff" stroke-opacity="0.45" stroke-width="6"/>
+
   <!-- Neoclassical Serif 'S' -->
-  <text x="16" y="22.5" font-family="'Playfair Display', Georgia, 'Times New Roman', serif" font-size="19" font-weight="700" text-anchor="middle" fill="#231934" filter="url(#subtle-shadow)" letter-spacing="-0.3">S</text>
+  <text x="256" y="360" font-family="'Playfair Display', Georgia, 'Times New Roman', serif" font-size="305" font-weight="700" text-anchor="middle" fill="#231934" filter="url(#subtle-shadow)" letter-spacing="-4">S</text>
 </svg>
