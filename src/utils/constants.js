@@ -93,3 +93,49 @@ export const weekdayNames = [
   "Saturday",
 ];
 
+export const SESSION_TYPES = [
+  "Learn",
+  "Practice",
+  "Active recall",
+  "Sectional Mock",
+  "Full Mock",
+];
+
+export const MOCK_CADENCE_PHASES = {
+  TAPER: {
+    maxDays: 3,
+    name: "Taper Freeze",
+    description: "Final active recall only. Heavy mocks paused to protect mental freshness.",
+    fullMocks: 0,
+    sectionalMocks: 0,
+  },
+  PEAK: {
+    maxDays: 14,
+    name: "Peak Simulation",
+    description: "High-frequency exam condition simulation on peak capacity days.",
+    fullMocks: 3,
+    sectionalMocks: 1,
+  },
+  INTENSIVE: {
+    maxDays: 30,
+    name: "High Cadence",
+    description: "Endurance & timing conditioning with bi-weekly full mocks.",
+    fullMocks: 2,
+    sectionalMocks: 1,
+  },
+  TRANSITION: {
+    maxDays: 60,
+    name: "Transition Cadence",
+    description: "Sectional pacing tests with periodic full mock checkpoints.",
+    fullMocks: 1,
+    sectionalMocks: 2,
+  },
+  FOUNDATION: {
+    maxDays: Infinity,
+    name: "Early Foundation",
+    description: "Concept building with diagnostic sectional tests.",
+    fullMocks: 0,
+    sectionalMocks: 1,
+  },
+};
+

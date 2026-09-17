@@ -169,7 +169,13 @@ export function Dashboard() {
 
   const toggleTask = (taskId, done) => {
     const t = exam.tasks.find(x => x.id === taskId);
-    if (t) { t.done = done; save(); }
+    if (t) {
+      t.done = done;
+      save();
+      if (done && t.type?.includes("Mock")) {
+        toast("Mock completed! Log tricky questions in your Mistake Book.");
+      }
+    }
   };
 
   const handleOverdue = (taskId, action) => {
@@ -252,15 +258,17 @@ export function Dashboard() {
 
           <div className="task-list">
             {todayTasks.length > 0 ? todayTasks.map(t => (
-              <label key={t.id} className="task">
+              <label key={t.id} className={`task ${t.type?.includes("Mock") ? "task-mock" : ""}`}>
                 <input 
                   type="checkbox" 
                   checked={t.done}
                   onChange={(e) => toggleTask(t.id, e.target.checked)}
                 />
-                <div>
-                  <div className="task-title">{t.topic}</div>
-                  <div className="task-meta">{t.type}</div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div className="task-title" style={{ overflowWrap: "break-word" }}>{t.topic}</div>
+                  <div className={`task-meta ${t.type === 'Full Mock' ? 'tag-mock-full' : t.type === 'Sectional Mock' ? 'tag-mock-sectional' : ''}`}>
+                    {t.type}
+                  </div>
                 </div>
                 <span className="task-duration">{t.duration} min</span>
               </label>

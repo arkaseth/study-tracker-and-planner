@@ -2,7 +2,7 @@ import { store, storeRev, currentExam, save } from "../core/state.js";
 import { useEffect, useState, useRef } from "preact/hooks";
 import { uid, toast, appConfirm } from "../utils/helpers.js";
 import { iso, addDays } from "../utils/dates.js";
-import { templates, isLocal, STORAGE_KEY, CUSTOM_TEMPLATE } from "../utils/constants.js";
+import { templates, isLocal, STORAGE_KEY, CUSTOM_TEMPLATE, SESSION_TYPES } from "../utils/constants.js";
 import { askAI } from "../api/ai.js";
 import { supabaseClient } from "../core/auth.js";
 import { createDefaultAvailability } from "../core/planner.js";
@@ -573,8 +573,8 @@ export function Modals() {
                 <>
                   <label className="modal-field">Topic<input name="topic" list="topics-list" defaultValue={formData.task?.topic} required /></label>
                   <label className="modal-field">Type
-                    <select name="type" defaultValue={formData.task?.type}>
-                      {["Learn", "Practice", "Active recall", "Mock test"].map(opt => <option key={opt}>{opt}</option>)}
+                    <select name="type" defaultValue={formData.task?.type || "Learn"}>
+                      {SESSION_TYPES.map(opt => <option key={opt}>{opt}</option>)}
                     </select>
                   </label>
                   <label className="modal-field">Date<input name="date" type="date" defaultValue={formData.task?.date || formData.date} required /></label>

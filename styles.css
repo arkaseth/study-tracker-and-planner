@@ -651,6 +651,70 @@ main {
   color: var(--accent);
   font: 500 9px "DM Mono";
 }
+.session .tag.tag-mock-full,
+.task-meta.tag-mock-full {
+  color: var(--coral) !important;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+.session .tag.tag-mock-sectional,
+.task-meta.tag-mock-sectional {
+  color: #85b8ff !important;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+.task.task-mock {
+  border-left: 3px solid var(--accent);
+  padding-left: 10px;
+}
+.mock-cadence-banner {
+  margin: 0 0 16px;
+  padding: 13px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--accent) 5%, var(--panel));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.mock-cadence-info {
+  flex: 1;
+  min-width: 260px;
+}
+.mock-cadence-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.mock-cadence-desc {
+  margin: 4px 0 0;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--muted);
+}
+.mock-toggle-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink);
+  user-select: none;
+  background: var(--canvas);
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+}
+.mock-toggle-label input {
+  accent-color: var(--accent);
+  cursor: pointer;
+}
 /* ========================================================================== */
 /* FLASHCARDS & REVIEW                                                        */
 /* ========================================================================== */

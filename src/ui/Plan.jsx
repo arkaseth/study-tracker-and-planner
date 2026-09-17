@@ -1,5 +1,5 @@
 import { store, storeRev, currentExam, save } from "../core/state.js";
-import { getOverdueTasks, availabilityHours, minutesAvailableOn } from "../core/planner.js";
+import { getOverdueTasks, availabilityHours, minutesAvailableOn, getMockCadence, generate14DaySchedule } from "../core/planner.js";
 import { iso, addDays, formatDate } from "../utils/dates.js";
 import { weekdayNames } from "../utils/constants.js";
 import { toast, appConfirm, uid } from "../utils/helpers.js";
@@ -32,6 +32,7 @@ export function Plan() {
   if (!exam) return null;
 
   const [bulkHours, setBulkHours] = useState(2);
+  const [autoMocks, setAutoMocks] = useState(true);
   // Drag state
   const [draggingId, setDraggingId] = useState(null);
   const [dragOverDate, setDragOverDate] = useState(null);
@@ -114,61 +115,21 @@ export function Plan() {
       );
       if (!ok) return;
     }
-    
-    exam.tasks = exam.tasks.filter((task) => task.date < today || task.date > end);
-    const topics = [...exam.topics];
-    if (!topics.length) {
+
+    if (!exam.topics || !exam.topics.length) {
       toast("Add at least one topic before generating a schedule.");
       return;
     }
-    
-    const pool = [];
-    topics.forEach((t) => {
-      const weight = Math.max(1, 5 - t.confidence);
-      for (let i = 0; i < weight; i++) pool.push(t);
+
+    const preservedTasks = exam.tasks.filter((task) => task.date < today || task.date > end);
+    const newSessions = generate14DaySchedule(exam, {
+      startDate: new Date(),
+      includeMocks: autoMocks,
     });
-    
-    const typeOrder = ["Learn", "Practice", "Active recall"];
-    const topicTypeCursor = {};
-    topics.forEach((t) => { topicTypeCursor[t.id] = 0; });
-    
-    let lastDayTopics = new Set();
-    for (let dayIndex = 0; dayIndex < 14; dayIndex++) {
-      const date = iso(addDays(new Date(), dayIndex));
-      if (date > end) break;
-      const dayMinutes = minutesAvailableOn(exam, date);
-      if (dayMinutes < 30) continue;
-      
-      const topicCount = dayMinutes <= 120 ? 1 : dayMinutes <= 240 ? 2 : dayMinutes <= 360 ? 3 : 4;
-      const baseDuration = Math.floor(dayMinutes / topicCount / 5) * 5,
-            remainder = dayMinutes - baseDuration * topicCount;
-            
-      const dayTopics = [];
-      const available = pool.filter((t) => !lastDayTopics.has(t.id));
-      const source = available.length >= topicCount ? available : pool;
-      const used = new Set();
-      
-      for (let s = 0; s < topicCount; s++) {
-        let candidates = source.filter((t) => !used.has(t.id));
-        if (!candidates.length) candidates = pool.filter((t) => !used.has(t.id));
-        if (!candidates.length) candidates = pool;
-        
-        const pick = candidates[Math.floor(Math.random() * candidates.length)];
-        used.add(pick.id);
-        
-        const duration = baseDuration + (s === topicCount - 1 ? remainder : 0);
-        const type = typeOrder[topicTypeCursor[pick.id] % 3];
-        topicTypeCursor[pick.id]++;
-        
-        exam.tasks.push({
-          id: uid(), date, topic: pick.name, type, duration, done: false,
-        });
-        dayTopics.push(pick.id);
-      }
-      lastDayTopics = new Set(dayTopics);
-    }
+
+    exam.tasks = [...preservedTasks, ...newSessions];
     save();
-    toast("A flexible 14-day schedule is ready to edit.");
+    toast(autoMocks ? "A flexible 14-day schedule with mock tests is ready." : "A flexible 14-day schedule is ready to edit.");
   };
 
   const updateTopicConfidence = (topicId, val) => {
@@ -205,6 +166,7 @@ export function Plan() {
   const avgHours = activeDaysCount ? Math.round((exam.weeklyHours / activeDaysCount) * 10) / 10 : 0;
   
   const today = iso();
+  const cadence = exam.examDate ? getMockCadence(exam.examDate) : null;
   const overdueDates = [...new Set(getOverdueTasks(exam).map(t => t.date))].sort();
   const horizon = Array.from({ length: 14 }, (_, i) => iso(addDays(new Date(), i)));
   const allDates = [...new Set([...overdueDates, ...horizon])].sort();
@@ -334,6 +296,28 @@ export function Plan() {
           </div>
         </div>
 
+        {cadence && (
+          <div className="mock-cadence-banner">
+            <div className="mock-cadence-info">
+              <div className="mock-cadence-title">
+                <span className="pill">{cadence.name}</span>
+                <span>{cadence.daysToExam} day{cadence.daysToExam === 1 ? "" : "s"} until {exam.name}</span>
+              </div>
+              <p className="mock-cadence-desc">
+                {cadence.description} 14-day targets: <strong>{cadence.fullMocks} Full</strong> &amp; <strong>{cadence.sectionalMocks} Sectional</strong> mock{cadence.fullMocks + cadence.sectionalMocks === 1 ? "" : "s"}.
+              </p>
+            </div>
+            <label className="mock-toggle-label">
+              <input
+                type="checkbox"
+                checked={autoMocks}
+                onChange={(e) => setAutoMocks(e.target.checked)}
+              />
+              Auto-schedule mocks
+            </label>
+          </div>
+        )}
+
         {/* Floating bulk-action bar — visible when sessions are selected */}
         {selectedIds.size > 0 && (
           <div style={{
@@ -432,7 +416,9 @@ export function Plan() {
                       }}
                       onDragEnd={() => { setDraggingId(null); setDragOverDate(null); }}
                     >
-                      <span className="tag">{t.type}</span>
+                      <span className={`tag ${t.type === 'Full Mock' ? 'tag-mock-full' : t.type === 'Sectional Mock' ? 'tag-mock-sectional' : ''}`}>
+                        {t.type}
+                      </span>
                       {t.topic} · {t.duration}m
                       {isPast && !t.done ? (
                         <>
