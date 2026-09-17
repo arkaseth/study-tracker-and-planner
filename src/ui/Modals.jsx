@@ -208,12 +208,13 @@ export function Modals() {
     const handleOpenModal = (e) => {
       const detail = e.detail;
       if (typeof detail === 'string') {
-        setFormData({ type: detail, date: iso(), task: null, initialText: '' });
+        setFormData({ type: detail, date: iso(), task: null, card: null, initialText: '' });
       } else {
         setFormData({
           type: detail.type,
           date: detail.date || iso(),
           task: detail.taskId ? currentExam()?.tasks.find(t => t.id === detail.taskId) : null,
+          card: detail.cardId ? currentExam()?.cards.find(c => c.id === detail.cardId) : null,
           initialText: detail.initialText || ''
         });
       }
@@ -404,9 +405,16 @@ export function Modals() {
     }
     
     if (type === "card") {
-      exam.cards.push({
-        id: uid(), ...data, due: iso(), reviews: 0, ease: 2.5, interval: 0, repetition: 0,
-      });
+      const card = formData.card;
+      if (card) {
+        card.front = data.front.trim();
+        card.back = data.back.trim();
+        card.topic = data.topic.trim();
+      } else {
+        exam.cards.push({
+          id: uid(), ...data, due: iso(), reviews: 0, ease: 2.5, interval: 0, repetition: 0,
+        });
+      }
     }
       
     if (type === "mistake") {
@@ -519,7 +527,7 @@ export function Modals() {
           <button className="modal-close" type="button" onClick={closeModals}>×</button>
           <div id="modal-content">
             <h2 className="modal-title">
-              {formData.task ? "Edit a study session" : { exam: "Create a study plan", "edit-exam": "Edit study plan", topic: "Add a topic", task: "Add a study session", card: "Create a flashcard", mistake: "Log a learning moment" }[formData.type]}
+              {formData.task ? "Edit a study session" : formData.card ? "Edit flashcard" : { exam: "Create a study plan", "edit-exam": "Edit study plan", topic: "Add a topic", task: "Add a study session", card: "Create a flashcard", mistake: "Log a learning moment" }[formData.type]}
             </h2>
             <p className="modal-copy">
               {formData.type === "mistake" ? "This will also create a review card for the correct approach." : formData.type === "edit-exam" ? "Update plan name or target exam date." : "Keep it lightweight - you can refine it later."}
@@ -583,9 +591,9 @@ export function Modals() {
               )}
               {formData.type === 'card' && (
                 <>
-                  <label className="modal-field">Prompt<input name="front" defaultValue={formData.initialText || ''} required /></label>
-                  <label className="modal-field">Answer<textarea name="back" required></textarea></label>
-                  <label className="modal-field">Topic<input name="topic" list="topics-list" required /></label>
+                  <label className="modal-field">Prompt<input name="front" defaultValue={formData.card?.front || formData.initialText || ''} required /></label>
+                  <label className="modal-field">Answer<textarea name="back" defaultValue={formData.card?.back || ''} required></textarea></label>
+                  <label className="modal-field">Topic<input name="topic" list="topics-list" defaultValue={formData.card?.topic || ''} required /></label>
                 </>
               )}
               {formData.type === 'mistake' && (
@@ -603,7 +611,7 @@ export function Modals() {
             <div className="modal-actions">
               <button type="button" className="secondary-button" onClick={closeModals}>Cancel</button>
               <button type="submit" className="primary-button">
-                {formData.task ? "Update session" : formData.type === "edit-exam" ? "Update plan" : "Save"}
+                {formData.task ? "Update session" : formData.card ? "Update flashcard" : formData.type === "edit-exam" ? "Update plan" : "Save"}
               </button>
             </div>
           </div>

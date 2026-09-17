@@ -2,7 +2,7 @@ import { store, storeRev, currentExam, save } from "../core/state.js";
 import { getDueCards } from "../core/planner.js";
 import { calcIntervals } from "../core/review.js";
 import { iso, addDays, formatDate } from "../utils/dates.js";
-import { toast } from "../utils/helpers.js";
+import { toast, appConfirm } from "../utils/helpers.js";
 import { useState } from "preact/hooks";
 
 export function Review() {
@@ -41,24 +41,35 @@ export function Review() {
 
   const getGapText = (g) => g < 1 ? "< 1 day" : `${g} day${g === 1 ? "" : "s"}`;
 
+  const handleDeleteCard = async (cardId) => {
+    const card = exam.cards.find(c => c.id === cardId);
+    const ok = await appConfirm(
+      "Delete flashcard?",
+      `Permanently remove "${card?.front?.slice(0, 45) || 'this card'}"?`
+    );
+    if (!ok) return;
+    exam.cards = exam.cards.filter(c => c.id !== cardId);
+    save();
+    toast("Flashcard deleted.");
+  };
+
   return (
     <section className="view active-view">
       <div className="intro-row compact">
         <div>
           <p className="eyebrow">SPACED REPETITION</p>
-          <h1>Review <em>with intent.</em></h1>
+          <h1>Review with <em>intent.</em></h1>
           <p className="muted">Rate your recall honestly. Hard cards come back sooner.</p>
         </div>
         <div style={{ display: "flex", gap: "8px" }}>
-          <button 
-            className="secondary-button" 
-            title="Capture from image"
+          <button
+            className="secondary-button"
             onClick={() => document.dispatchEvent(new CustomEvent('openOCR'))}
           >
-            <span style={{ verticalAlign: "middle", lineHeight: 1 }}>📷</span> Capture
+            📷 Capture
           </button>
           <button 
-            className="secondary-button" 
+            className="primary-button" 
             onClick={() => document.dispatchEvent(new CustomEvent('openModal', {detail: 'card'}))}
           >
             + New card
@@ -66,7 +77,7 @@ export function Review() {
         </div>
       </div>
 
-      {!due.length ? (
+      {!currentCard ? (
         <div className="empty-state">
           <div className="empty-orb">✦</div>
           <h2>Your queue is clear.</h2>
@@ -120,13 +131,32 @@ export function Review() {
         <div className="card-list">
           {exam.cards.length ? exam.cards.map(c => (
             <div key={c.id} className="card-row">
-              <div>
+              <div style={{ flex: 1, minWidth: 0 }}>
                 <b>{c.front}</b>
                 <p>{c.topic} · {c.reviews} review{c.reviews === 1 ? "" : "s"}</p>
               </div>
-              <span className="pill">
-                {c.due <= iso() ? "due now" : `due ${formatDate(c.due)}`}
-              </span>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", flexShrink: 0 }}>
+                <span className="pill">
+                  {c.due <= iso() ? "due now" : `due ${formatDate(c.due)}`}
+                </span>
+                <button
+                  type="button"
+                  className="icon-button"
+                  style={{ width: "26px", height: "26px", minWidth: "26px", fontSize: "11px", border: "1px solid var(--line)" }}
+                  title="Edit flashcard"
+                  onClick={() => document.dispatchEvent(new CustomEvent('openModal', { detail: { type: 'card', cardId: c.id } }))}
+                >
+                  ✎
+                </button>
+                <button
+                  type="button"
+                  className="icon-delete"
+                  title="Delete flashcard"
+                  onClick={() => handleDeleteCard(c.id)}
+                >
+                  ×
+                </button>
+              </div>
             </div>
           )) : (
             <p className="muted">Your flashcards will appear here.</p>

@@ -29,19 +29,21 @@ Data lives in your browser first. Optional Supabase cloud sync keeps devices in 
 
 | Area | What's included |
 |---|---|
-| **Study Plans** | Multiple parallel exams, switchable at any time |
+| **Study Plans** | Multiple parallel exams, editable & switchable at any time |
 | **Templates** | CAT, CFA I–III, GATE Chemical, GMAT, GRE, JEE Main+Advanced, System Design — or import a custom JSON template |
 | **Schedule Generator** | Confidence-weighted, 14-day rolling schedule with consecutive-day avoidance and session-type cycling |
-| **Flashcards** | SM-2 spaced repetition with dynamic ease/interval/repetition tracking |
-| **Mistake Book** | Every logged error auto-creates a review card with root-cause capture |
+| **Mock Scheduler** | Proximity-based mock test ramp-up (`<= 2 months`); dynamically allocates Sectional & Full Mocks on high-capacity study days |
+| **Flashcards** | SM-2 spaced repetition with dynamic ease/interval/repetition tracking, plus in-library edit and delete management |
+| **Mistake Book** | Every logged error auto-creates a review card with root-cause capture; one-click logging from completed mock sessions |
 | **Concept Glossary** | Per-topic notes, definitions, and formulas |
 | **AI Copilot** | Bring-your-own-key (Gemini / OpenAI / Claude) for card generation and answer critique |
-| **OCR** | Upload or paste exam paper images to extract text |
+| **OCR** | Client-side Tesseract.js to extract questions from textbook photos and past exam screenshots |
+| **PWA & Offline** | Fully installable Progressive Web App with Workbox service worker precaching, modern squircle adaptive icons, and offline state detection |
 | **Pomodoro Timer** | Configurable focus/break lengths; auto-marks linked sessions done |
 | **Overdue Flow** | Missed sessions surface with reschedule / done / skip controls |
 | **Drag-and-drop** | Reorder sessions between days in the Plan view |
-| **Cloud Sync** | Email + password auth via Supabase; full offline-first |
-| **4 Themes** | Night, Dusk, Dawn, Light |
+| **Cloud Sync** | Google OAuth + Email/Password auth via Supabase; full offline-first |
+| **4 Themes** | Night, Light, Ink, Lavender |
 | **Data Portability** | JSON export/import, ICS calendar export |
 
 ---
@@ -77,7 +79,7 @@ The app is configured for Netlify out of the box (`netlify.toml` included). Conn
 ## Testing
 
 ```bash
-npm test                  # run all 72 tests once
+npm test                  # run all 81 tests once
 npm run test:watch        # watch mode
 npm run test:coverage     # run with v8 coverage report
 ```
@@ -104,15 +106,21 @@ Then in **Create a study plan → Template → ✦ Custom (import JSON)…**, pi
 
 ## Schedule generation algorithm
 
-The 14-day generator uses a **confidence-weighted pool**:
+The 14-day rolling generator balances topic coverage, confidence weighting, and proximity-based mock exam simulation:
 
-- Each topic enters the pool with `max(1, 5 − confidence)` slots.  
-  A topic at confidence 1 appears ~4× more than a topic at confidence 4.
-- Available minutes per day are split into 1–4 sessions:  
-  ≤ 2 h → 1 topic · 2–4 h → 2 · 4–6 h → 3 · 6–8 h → 4
-- **Consecutive-day avoidance**: topics from today's sessions are excluded from tomorrow's candidate pool where possible.
-- **Session-type cycling**: each topic independently cycles through *Learn → Practice → Active recall* across the 14-day window.
-- A confirmation dialog prompts before overwriting any manually-edited sessions.
+- **Confidence-Weighted Pool**: Each topic enters the pool with `max(1, 5 − confidence)` slots. Topics at confidence 1 appear ~4× more frequently than topics at confidence 4.
+- **Dynamic Proximity Mock Cadence**:
+  - **Early Foundation (`> 60 days`)**: 1 Sectional Mock per 14-day window.
+  - **Transition Cadence (`31 – 60 days`)**: 1 Full Mock + 2 Sectional Mocks per 14-day window.
+  - **High Cadence (`15 – 30 days`)**: 2 Full Mocks + 1 Sectional Mock per 14-day window.
+  - **Peak Simulation (`4 – 14 days`)**: 3 Full Mocks + 1 Sectional Mock per 14-day window.
+  - **Taper Freeze (`<= 3 days`)**: 0 heavy mocks; focus solely on light recall and Mistake Book consolidation.
+- **Constraint-Satisfaction Slotting**:
+  - Full Mocks require ≥ 90 minutes of available study time and maintain a minimum 3-day recovery separation.
+  - Sectional Mocks automatically target the student's lowest-confidence topics.
+- **Consecutive-day avoidance**: Topics from today's sessions are excluded from tomorrow's candidate pool where possible to avoid cognitive fatigue.
+- **Session-type cycling**: Topics independently cycle through *Learn → Practice → Active recall*.
+- Confirmation dialog safeguards protect manually-edited or dragged sessions from accidental overwrite.
 
 ---
 
@@ -165,8 +173,10 @@ See [docs/SYSTEM_DESIGN.md](docs/SYSTEM_DESIGN.md) for the full architecture bre
 
 ## Roadmap
 
+- [x] Progressive Web App (PWA) installable offline mode with modern WebAPK standards & squircle icons
+- [x] Mock exams scheduler with proximity-based ramp-up (`<= 2 months`)
+- [x] In-library flashcard editing and deletion management
 - [ ] Calendar sync (Google Calendar / Apple Calendar push)
 - [ ] Browser notifications for due reviews and session reminders
 - [ ] Keyboard navigation and accessibility audit
-- [ ] Progressive Web App (PWA) installable offline mode
 - [ ] Analytics dashboard (study streaks, topic velocity charts)
